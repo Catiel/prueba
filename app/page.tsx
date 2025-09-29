@@ -1,97 +1,430 @@
-import LoginButton from "@/components/LoginLogoutButton";
-import UserGreetText from "@/components/UserGreetText";
-import Image from "next/image";
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Play, Code, Zap, Award, BookOpen, Users, Menu, X, GraduationCap } from "lucide-react"
+import Link from "next/link"
+import UserGreetText from "@/components/UserGreetText"
+import LoginButton from "@/components/LoginLogoutButton"
+
+function PythonLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.26-.02.2-.01h13.17l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25c-.2 0-.37.09-.5.27-.14.18-.21.42-.21.71 0 .28.07.52.21.7.13.18.3.27.5.27.2 0 .37-.09.5-.27.14-.18.21-.42.21-.7 0-.29-.07-.53-.21-.71-.13-.18-.3-.27-.5-.27zm-7.83-7.75c.33 0 .61.26.61.58 0 .31-.28.56-.61.56-.33 0-.61-.25-.61-.56 0-.32.28-.58.61-.58z"
+        fill="url(#python-gradient)"
+      />
+      <defs>
+        <linearGradient id="python-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3776ab" />
+          <stop offset="100%" stopColor="#ffd43b" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
+
+function CodeEditorPreview() {
+  const nombre = "Estudiante"
+
+  return (
+    <Card className="bg-secondary text-secondary-foreground p-6 font-mono text-sm overflow-hidden">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        <span className="ml-2 text-muted-foreground">aprende_code.py</span>
+      </div>
+      <div className="space-y-2">
+        <div className="text-blue-400"># Tu primer programa en Python</div>
+        <div className="text-green-400">def saludar(nombre):</div>
+        <div className="ml-4 text-white">print(f"¡Hola, {"{nombre}"}!")</div>
+        <div className="ml-4 text-white">print("¡Bienvenido a Aprende Code!")</div>
+        <div className="text-green-400 mt-4">saludar("{nombre}")</div>
+        <div className="text-gray-400 mt-4"># Salida:</div>
+        <div className="text-yellow-300"># ¡Hola, Estudiante!</div>
+        <div className="text-yellow-300"># ¡Bienvenido a Aprende Code!</div>
+      </div>
+    </Card>
+  )
+}
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <UserGreetText />
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <LoginButton />
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="border-b border-slate-200 bg-white sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <PythonLogo className="w-6 h-6 sm:w-8 sm:h-8" />
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">Aprende Code</h1>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6">
+            <a href="#curso" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
+              El Curso
+            </a>
+            <a href="#profesores" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
+              Para Profesores
+            </a>
+            <a href="#estudiantes" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
+              Para Estudiantes
+            </a>
+            <a href="#recursos" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
+              Recursos
+            </a>
+          </nav>
+
+          {/* Desktop Buttons */}
+          <div className="hidden md:flex items-center gap-2 sm:gap-3">
+            <UserGreetText />
+            <LoginButton />
+          </div>
+
+          {/* Mobile Menu Button */}
+          <Button variant="ghost" size="sm" className="lg:hidden">
+            <Menu className="w-5 h-5" />
+          </Button>
         </div>
-      </div>
+      </header>
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
+      {/* Hero Section */}
+      <section className="bg-sky-50 text-slate-800 py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-balance leading-tight">
+            Introducción a Python
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-balance max-w-3xl mx-auto opacity-90 leading-relaxed">
+            Aprende programación desde cero con nuestro curso completo de Python. Totalmente gratuito y diseñado para
+            principiantes.
           </p>
-        </a>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-md sm:max-w-none mx-auto">
+            <Link href="/signup">
+              <Button size="lg" className="w-full sm:w-auto bg-sky-600 text-white hover:bg-sky-700">
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                Comenzar Curso Gratis
+              </Button>
+            </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto border-sky-600 text-sky-600 hover:bg-sky-600 hover:text-white bg-transparent"
+            >
+              Ver Contenido del Curso
+            </Button>
+          </div>
+        </div>
+      </section>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+      {/* Code Preview Section */}
+      <section className="py-12 sm:py-16 bg-sky-25">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="order-2 lg:order-1">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-balance leading-tight text-slate-800">
+                Tu primer programa en Python
+              </h2>
+              <p className="text-base sm:text-lg text-slate-600 mb-6 sm:mb-8 leading-relaxed">
+                Desde "Hola Mundo" hasta proyectos completos. Nuestro curso de Introducción a Python te lleva paso a
+                paso desde los conceptos básicos hasta crear tus primeras aplicaciones.
+              </p>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
+                <div className="flex items-center gap-2">
+                  <Code className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 flex-shrink-0" />
+                  <span className="text-sm sm:text-base text-slate-700">Editor integrado</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 flex-shrink-0" />
+                  <span className="text-sm sm:text-base text-slate-700">Práctica inmediata</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 flex-shrink-0" />
+                  <span className="text-sm sm:text-base text-slate-700">Certificado gratuito</span>
+                </div>
+              </div>
+            </div>
+            <div className="order-1 lg:order-2">
+              <CodeEditorPreview />
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+      {/* User Types Section */}
+      <section className="py-12 sm:py-16" id="profesores">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-balance leading-tight">
+              Diseñado para todos
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Ya seas profesor o estudiante, tenemos las herramientas perfectas para tu viaje de aprendizaje.
+            </p>
+          </div>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
+            {/* Para Profesores */}
+            <Card className="p-4 sm:p-6 lg:p-8 hover:shadow-lg transition-shadow">
+              <CardHeader className="text-center pb-4 sm:pb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl sm:text-2xl">Para Profesores</CardTitle>
+                <CardDescription className="text-sm sm:text-base">
+                  Herramientas completas para enseñar programación
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <h4 className="font-semibold text-sm sm:text-base">Gestión de Clases</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Organiza estudiantes y asigna tareas fácilmente
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <h4 className="font-semibold text-sm sm:text-base">Seguimiento de Progreso</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Monitorea el avance de cada estudiante</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <h4 className="font-semibold text-sm sm:text-base">Recursos Didácticos</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Acceso a ejercicios y proyectos prediseñados
+                    </p>
+                  </div>
+                </div>
+                <Link href="/signup">
+                  <Button className="w-full mt-4 sm:mt-6 text-sm sm:text-base">Comenzar como Profesor</Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Para Estudiantes */}
+            <Card className="p-4 sm:p-6 lg:p-8 hover:shadow-lg transition-shadow" id="estudiantes">
+              <CardHeader className="text-center pb-4 sm:pb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl sm:text-2xl">Para Estudiantes</CardTitle>
+                <CardDescription className="text-sm sm:text-base">
+                  Aprende a tu ritmo con contenido interactivo
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <h4 className="font-semibold text-sm sm:text-base">Lecciones Interactivas</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Aprende con ejemplos prácticos y ejercicios
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <h4 className="font-semibold text-sm sm:text-base">Proyectos Reales</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Construye aplicaciones desde el primer día
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <h4 className="font-semibold text-sm sm:text-base">Comunidad de Apoyo</h4>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Conecta con otros estudiantes y profesores
+                    </p>
+                  </div>
+                </div>
+                <Link href="/signup">
+                  <Button className="w-full mt-4 sm:mt-6 text-sm sm:text-base">Comenzar como Estudiante</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-12 sm:py-16 bg-muted/30" id="curso">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-balance leading-tight">
+              Curso completo y gratuito
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Nuestro curso de Introducción a Python incluye todo lo que necesitas para comenzar a programar, sin
+              costo alguno.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <Card className="text-center p-4 sm:p-6">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Code className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Sin Instalaciones</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Programa Python directamente en tu navegador. Comienza el curso inmediatamente sin configuraciones.
+              </p>
+            </Card>
+
+            <Card className="text-center p-4 sm:p-6">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Contenido Estructurado</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                15 módulos que cubren desde variables y funciones hasta proyectos reales con Python.
+              </p>
+            </Card>
+
+            <Card className="text-center p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Apoyo Gratuito</h3>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Acceso a profesores y comunidad de estudiantes para resolver dudas durante todo el curso.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 sm:py-20 bg-secondary text-secondary-foreground">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-balance leading-tight">
+            Comienza tu curso de Python hoy
           </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
+          <p className="text-base sm:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto opacity-90 leading-relaxed">
+            Únete a miles de estudiantes que ya están aprendiendo programación con nuestro curso gratuito de
+            Introducción a Python.
           </p>
-        </a>
-      </div>
-    </main>
-  );
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
+            <Link href="/signup">
+              <Button size="lg" className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90">
+                Inscribirse Gratis al Curso
+              </Button>
+            </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              className="w-full sm:w-auto border-secondary-foreground text-secondary-foreground hover:bg-secondary-foreground hover:text-secondary bg-transparent"
+            >
+              Ver Temario Completo
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-card border-t border-border py-8 sm:py-12" id="recursos">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <PythonLogo className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="text-base sm:text-lg font-bold">Aprende Code</span>
+              </div>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                Curso gratuito de Introducción a Python para principiantes.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Curso</h4>
+              <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Temario
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Ejercicios
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Proyectos
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Certificado
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Comunidad</h4>
+              <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Foro
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Discord
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Blog
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Eventos
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Soporte</h4>
+              <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Centro de Ayuda
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Contacto
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Términos
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-foreground transition-colors">
+                    Privacidad
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-border mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-xs sm:text-sm text-muted-foreground">
+            <p>&copy; 2025 Aprende Code. Todos los derechos reservados.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
 }
