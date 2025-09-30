@@ -1,6 +1,5 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { type NextRequest, NextResponse } from 'next/server'
-
 import { createClient } from '@/utils/supabase/server'
 
 export async function GET(request: NextRequest) {
@@ -13,6 +12,7 @@ export async function GET(request: NextRequest) {
   redirectTo.pathname = next
   redirectTo.searchParams.delete('token_hash')
   redirectTo.searchParams.delete('type')
+  redirectTo.searchParams.delete('next')
 
   if (token_hash && type) {
     const supabase = createClient()
@@ -21,13 +21,23 @@ export async function GET(request: NextRequest) {
       type,
       token_hash,
     })
-    console.log(error);
+
     if (!error) {
-      redirectTo.searchParams.delete('next')
+      // Si es recovery, SIEMPRE redirigir a update password
+      if (type === 'recovery') {
+        redirectTo.pathname = '/auth/update-password'
+        console.log('Redirecting to:', redirectTo.pathname)
+        return NextResponse.redirect(redirectTo)
+      }
+
+      // Para otros tipos (signup, etc), usar el next o home
       return NextResponse.redirect(redirectTo)
+    } else {
+      console.error('Error verifying OTP:', error)
     }
   }
-  // return the user to an error page with some instructions
+
   redirectTo.pathname = '/error'
+  redirectTo.searchParams.delete('next')
   return NextResponse.redirect(redirectTo)
 }
