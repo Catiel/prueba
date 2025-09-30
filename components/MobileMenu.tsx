@@ -4,28 +4,47 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
-import Link from "next/link";
+import Image from "next/image";
 import LoginButton from "./LoginLogoutButton";
+
+interface Profile {
+  avatar_url: string | null;
+  full_name: string | null;
+}
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserAndProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setUser(user);
+
+      if (user) {
+        setUser(user);
+        console.log('Mobile Menu - User data:', user);
+
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('avatar_url, full_name, email')
+          .eq('id', user.id)
+          .single();
+
+        if (profileData) {
+          setProfile(profileData);
+        }
+      }
     };
-    fetchUser();
+
+    fetchUserAndProfile();
   }, []);
 
-  // Cerrar el menú cuando se hace clic en un enlace
   const closeMenu = () => setIsOpen(false);
 
-  // Prevenir scroll cuando el menú está abierto
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -37,11 +56,16 @@ export default function MobileMenu() {
     };
   }, [isOpen]);
 
-  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || null;
+  const displayName =
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split('@')[0] ||
+    null;
+
+  const avatarUrl = profile?.avatar_url;
 
   return (
     <>
-      {/* Botón del menú móvil */}
       <Button
         variant="ghost"
         size="sm"
@@ -52,7 +76,6 @@ export default function MobileMenu() {
         {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </Button>
 
-      {/* Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -60,14 +83,12 @@ export default function MobileMenu() {
         />
       )}
 
-      {/* Menú lateral */}
       <div
         className={`fixed top-0 right-0 h-full w-64 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Header del menú */}
           <div className="flex items-center justify-between p-4 border-b">
             <h2 className="font-semibold text-lg">Menú</h2>
             <Button
@@ -80,13 +101,29 @@ export default function MobileMenu() {
             </Button>
           </div>
 
-          {/* Usuario info */}
           {user && displayName && (
             <div className="p-4 border-b bg-slate-50">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
+                {avatarUrl ? (
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-slate-200">
+                    <Image
+                      src={avatarUrl}
+                      alt={displayName}
+                      fill
+                      className="object-cover"
+                      sizes="40px"
+                      onError={(e) => {
+                        console.error('Mobile Menu - Error loading image:', e);
+                        console.error('Mobile Menu - Image URL was:', avatarUrl);
+                      }}
+                      unoptimized
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                    {displayName.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 truncate">
                     {displayName}
@@ -99,7 +136,6 @@ export default function MobileMenu() {
             </div>
           )}
 
-          {/* Links de navegación */}
           <nav className="flex-1 overflow-y-auto py-4">
             <a
               href="#curso"
@@ -131,7 +167,6 @@ export default function MobileMenu() {
             </a>
           </nav>
 
-          {/* Botón de login/logout */}
           <div className="p-4 border-t">
             <LoginButton />
           </div>
