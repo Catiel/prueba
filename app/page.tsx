@@ -7,6 +7,7 @@ import UserGreetText from "@/components/UserGreetText"
 import LoginButton from "@/components/LoginLogoutButton"
 import MobileMenu from "@/components/MobileMenu"
 import { createClient } from "@/utils/supabase/server"
+import { redirect } from "next/navigation"
 
 function CodeEditorPreview() {
   const nombre = "Estudiante"
@@ -37,6 +38,10 @@ export default async function Home() {
   // Verificar si el usuario está autenticado
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    redirect("/dashboard")
+  }
 
   return (
     <div className="min-h-screen bg-white">
