@@ -31,7 +31,6 @@ export async function signup(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  // Validación básica
   if (!email || !password || !firstName || !lastName) {
     redirect("/error");
   }
@@ -45,7 +44,6 @@ export async function signup(formData: FormData) {
         email: email,
       },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
-      // Esto permite auto-confirmación si está deshabilitado en Supabase
     },
   });
 
@@ -103,16 +101,48 @@ export async function resetPassword(formData: FormData) {
     return { error: "Por favor ingresa un correo electrónico válido" };
   }
 
+  // Verificar si el usuario existe y cómo se registró
+  const { data: userData } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('email', email)
+    .single();
+
+  if (!userData) {
+    // No revelar si el email existe o no por seguridad
+    return {
+      success: true,
+      message: "Si el correo está registrado, recibirás un enlace de recuperación"
+    };
+  }
+
+  // Intentar enviar el email de recuperación
+  // Supabase permite esto incluso para usuarios OAuth
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/auth/update-password`,
   });
 
   if (error) {
     console.error("Reset password error:", error);
-    return { error: "No se pudo enviar el correo de recuperación. Verifica que el email esté registrado." };
+
+    // Si el error es porque el usuario no tiene contraseña (OAuth)
+    // Supabase igualmente enviará el email permitiendo establecer una
+    if (error.message.includes("User not found")) {
+      return {
+        success: true,
+        message: "Si el correo está registrado, recibirás un enlace de recuperación"
+      };
+    }
+
+    return {
+      error: "Ocurrió un error al enviar el correo. Intenta nuevamente."
+    };
   }
 
-  return { success: true };
+  return {
+    success: true,
+    message: "Revisa tu correo para el enlace de recuperación"
+  };
 }
 
 export async function updatePassword(formData: FormData) {
@@ -123,6 +153,14 @@ export async function updatePassword(formData: FormData) {
     return { error: "La contraseña debe tener al menos 6 caracteres" };
   }
 
+  // Verificar que el usuario está autenticado
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "Sesión inválida. Solicita un nuevo enlace de recuperación." };
+  }
+
+  // Actualizar la contraseña
   const { error } = await supabase.auth.updateUser({
     password: password,
   });
@@ -131,6 +169,9 @@ export async function updatePassword(formData: FormData) {
     console.error("Update password error:", error);
     return { error: "No se pudo actualizar la contraseña" };
   }
+
+  // Si el usuario se registró con OAuth y ahora tiene contraseña
+  // Supabase automáticamente habilitará el login con email/password
 
   return { success: true };
 }
