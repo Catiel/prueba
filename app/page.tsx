@@ -2,26 +2,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Play, Code, Zap, Award, BookOpen, Users } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import UserGreetText from "@/components/UserGreetText"
 import LoginButton from "@/components/LoginLogoutButton"
 import MobileMenu from "@/components/MobileMenu"
-
-function PythonLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.26-.02.2-.01h13.17l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25c-.2 0-.37.09-.5.27-.14.18-.21.42-.21.71 0 .28.07.52.21.7.13.18.3.27.5.27.2 0 .37-.09.5-.27.14-.18.21-.42.21-.7 0-.29-.07-.53-.21-.71-.13-.18-.3-.27-.5-.27zm-7.83-7.75c.33 0 .61.26.61.58 0 .31-.28.56-.61.56-.33 0-.61-.25-.61-.56 0-.32.28-.58.61-.58z"
-        fill="url(#python-gradient)"
-      />
-      <defs>
-        <linearGradient id="python-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3776ab" />
-          <stop offset="100%" stopColor="#ffd43b" />
-        </linearGradient>
-      </defs>
-    </svg>
-  )
-}
 
 function CodeEditorPreview() {
   const nombre = "Estudiante"
@@ -55,9 +39,16 @@ export default function Home() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
             <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
-              <PythonLogo className="w-6 h-6 sm:w-8 sm:h-8" />
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+                <Image
+                  src="/logo.png"
+                  alt="Aprende Code Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">
                 Aprende Code
               </h1>
@@ -349,7 +340,14 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-                <PythonLogo className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="relative w-6 h-6 sm:w-7 sm:h-7">
+                  <Image
+                    src="/logo.png"
+                    alt="Aprende Code Logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <span className="text-base sm:text-lg font-bold">Aprende Code</span>
               </div>
               <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">

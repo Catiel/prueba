@@ -28,11 +28,15 @@ export default function MobileMenu() {
         setUser(user);
         console.log('Mobile Menu - User data:', user);
 
+        // Obtener el perfil de la base de datos
         const { data: profileData, error } = await supabase
           .from('profiles')
           .select('avatar_url, full_name, email')
           .eq('id', user.id)
           .single();
+
+        console.log('Mobile Menu - Profile data:', profileData);
+        console.log('Mobile Menu - Profile error:', error);
 
         if (profileData) {
           setProfile(profileData);
@@ -63,6 +67,9 @@ export default function MobileMenu() {
     null;
 
   const avatarUrl = profile?.avatar_url;
+
+  console.log('Mobile Menu - Display name:', displayName);
+  console.log('Mobile Menu - Avatar URL:', avatarUrl);
 
   return (
     <>
