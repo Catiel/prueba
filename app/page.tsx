@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, Code, Zap, Award, BookOpen, Users, Menu, X, GraduationCap } from "lucide-react"
+import { Play, Code, Zap, Award, BookOpen, Users } from "lucide-react"
 import Link from "next/link"
 import UserGreetText from "@/components/UserGreetText"
 import LoginButton from "@/components/LoginLogoutButton"
+import MobileMenu from "@/components/MobileMenu"
 
 function PythonLogo({ className }: { className?: string }) {
   return (
@@ -26,20 +27,20 @@ function CodeEditorPreview() {
   const nombre = "Estudiante"
 
   return (
-    <Card className="bg-secondary text-secondary-foreground p-6 font-mono text-sm overflow-hidden">
+    <Card className="bg-slate-900 text-slate-100 p-4 sm:p-6 font-mono text-xs sm:text-sm overflow-hidden shadow-2xl">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-3 h-3 rounded-full bg-red-500"></div>
         <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
         <div className="w-3 h-3 rounded-full bg-green-500"></div>
-        <span className="ml-2 text-muted-foreground">aprende_code.py</span>
+        <span className="ml-2 text-slate-400 text-xs">aprende_code.py</span>
       </div>
       <div className="space-y-2">
-        <div className="text-blue-400"># Tu primer programa en Python</div>
+        <div className="text-slate-500"># Tu primer programa en Python</div>
         <div className="text-green-400">def saludar(nombre):</div>
-        <div className="ml-4 text-white">print(f"¡Hola, {"{nombre}"}!")</div>
-        <div className="ml-4 text-white">print("¡Bienvenido a Aprende Code!")</div>
+        <div className="ml-4 text-slate-100">print(f"¡Hola, {"{nombre}"}!")</div>
+        <div className="ml-4 text-slate-100">print("¡Bienvenido a Aprende Code!")</div>
         <div className="text-green-400 mt-4">saludar("{nombre}")</div>
-        <div className="text-gray-400 mt-4"># Salida:</div>
+        <div className="text-slate-500 mt-4"># Salida:</div>
         <div className="text-yellow-300"># ¡Hola, Estudiante!</div>
         <div className="text-yellow-300"># ¡Bienvenido a Aprende Code!</div>
       </div>
@@ -50,56 +51,62 @@ function CodeEditorPreview() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-slate-200 bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <PythonLogo className="w-6 h-6 sm:w-8 sm:h-8" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">Aprende Code</h1>
+      {/* Header mejorado */}
+      <header className="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
+              <PythonLogo className="w-6 h-6 sm:w-8 sm:h-8" />
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">
+                Aprende Code
+              </h1>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-6">
+              <a href="#curso" className="text-sm text-slate-600 hover:text-slate-800 transition-colors font-medium">
+                El Curso
+              </a>
+              <a href="#profesores" className="text-sm text-slate-600 hover:text-slate-800 transition-colors font-medium">
+                Para Profesores
+              </a>
+              <a href="#estudiantes" className="text-sm text-slate-600 hover:text-slate-800 transition-colors font-medium">
+                Para Estudiantes
+              </a>
+              <a href="#recursos" className="text-sm text-slate-600 hover:text-slate-800 transition-colors font-medium">
+                Recursos
+              </a>
+            </nav>
+
+            {/* Desktop User Info & Buttons */}
+            <div className="hidden lg:flex items-center gap-3">
+              <UserGreetText />
+              <LoginButton />
+            </div>
+
+            {/* Mobile Menu */}
+            <MobileMenu />
           </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-6">
-            <a href="#curso" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
-              El Curso
-            </a>
-            <a href="#profesores" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
-              Para Profesores
-            </a>
-            <a href="#estudiantes" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
-              Para Estudiantes
-            </a>
-            <a href="#recursos" className="text-sm text-slate-600 hover:text-slate-800 transition-colors">
-              Recursos
-            </a>
-          </nav>
-
-          {/* Desktop Buttons */}
-          <div className="hidden md:flex items-center gap-2 sm:gap-3">
-            <UserGreetText />
-            <LoginButton />
-          </div>
-
-          {/* Mobile Menu Button */}
-          <Button variant="ghost" size="sm" className="lg:hidden">
-            <Menu className="w-5 h-5" />
-          </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-sky-50 text-slate-800 py-12 sm:py-16 md:py-20 lg:py-24">
+      <section className="bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 text-slate-800 py-12 sm:py-16 md:py-20 lg:py-24">
         <div className="container mx-auto px-4 text-center">
+          <div className="inline-block mb-4 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-sm font-medium text-sky-700 border border-sky-200">
+            🎓 Curso 100% Gratuito
+          </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-balance leading-tight">
             Introducción a Python
           </h1>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-balance max-w-3xl mx-auto opacity-90 leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 text-balance max-w-3xl mx-auto text-slate-600 leading-relaxed">
             Aprende programación desde cero con nuestro curso completo de Python. Totalmente gratuito y diseñado para
             principiantes.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center max-w-md sm:max-w-none mx-auto">
-            <Link href="/signup">
-              <Button size="lg" className="w-full sm:w-auto bg-sky-600 text-white hover:bg-sky-700">
+            <Link href="/signup" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto bg-sky-600 text-white hover:bg-sky-700 shadow-lg hover:shadow-xl transition-all">
                 <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Comenzar Curso Gratis
               </Button>
@@ -107,7 +114,7 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              className="w-full sm:w-auto border-sky-600 text-sky-600 hover:bg-sky-600 hover:text-white bg-transparent"
+              className="w-full sm:w-auto border-sky-600 text-sky-600 hover:bg-sky-600 hover:text-white bg-white/80 backdrop-blur-sm"
             >
               Ver Contenido del Curso
             </Button>
@@ -116,10 +123,13 @@ export default function Home() {
       </section>
 
       {/* Code Preview Section */}
-      <section className="py-12 sm:py-16 bg-sky-25">
+      <section className="py-12 sm:py-16 lg:py-20">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div className="order-2 lg:order-1">
+              <div className="inline-block mb-4 px-3 py-1 bg-sky-100 rounded-full text-sm font-medium text-sky-700">
+                💻 Práctica Inmediata
+              </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-balance leading-tight text-slate-800">
                 Tu primer programa en Python
               </h2>
@@ -127,18 +137,18 @@ export default function Home() {
                 Desde "Hola Mundo" hasta proyectos completos. Nuestro curso de Introducción a Python te lleva paso a
                 paso desde los conceptos básicos hasta crear tus primeras aplicaciones.
               </p>
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
-                <div className="flex items-center gap-2">
-                  <Code className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 flex-shrink-0" />
-                  <span className="text-sm sm:text-base text-slate-700">Editor integrado</span>
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+                  <Code className="w-5 h-5 text-sky-600 flex-shrink-0" />
+                  <span className="text-sm font-medium text-slate-700">Editor integrado</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 flex-shrink-0" />
-                  <span className="text-sm sm:text-base text-slate-700">Práctica inmediata</span>
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+                  <Zap className="w-5 h-5 text-sky-600 flex-shrink-0" />
+                  <span className="text-sm font-medium text-slate-700">Práctica inmediata</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600 flex-shrink-0" />
-                  <span className="text-sm sm:text-base text-slate-700">Certificado gratuito</span>
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg sm:col-span-2 lg:col-span-1">
+                  <Award className="w-5 h-5 text-sky-600 flex-shrink-0" />
+                  <span className="text-sm font-medium text-slate-700">Certificado gratuito</span>
                 </div>
               </div>
             </div>
@@ -150,102 +160,105 @@ export default function Home() {
       </section>
 
       {/* User Types Section */}
-      <section className="py-12 sm:py-16" id="profesores">
+      <section className="py-12 sm:py-16 lg:py-20 bg-slate-50" id="profesores">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 sm:mb-12">
+            <div className="inline-block mb-4 px-3 py-1 bg-sky-100 rounded-full text-sm font-medium text-sky-700">
+              👥 Para Todos
+            </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-balance leading-tight">
               Diseñado para todos
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
               Ya seas profesor o estudiante, tenemos las herramientas perfectas para tu viaje de aprendizaje.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8 max-w-5xl mx-auto">
             {/* Para Profesores */}
-            <Card className="p-4 sm:p-6 lg:p-8 hover:shadow-lg transition-shadow">
-              <CardHeader className="text-center pb-4 sm:pb-6">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+            <Card className="p-6 sm:p-8 hover:shadow-xl transition-all duration-300 border-2 hover:border-sky-200">
+              <CardHeader className="text-center pb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Users className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-xl sm:text-2xl">Para Profesores</CardTitle>
-                <CardDescription className="text-sm sm:text-base">
+                <CardTitle className="text-2xl">Para Profesores</CardTitle>
+                <CardDescription className="text-base">
                   Herramientas completas para enseñar programación
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 sm:space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="w-2 h-2 bg-sky-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-sm sm:text-base">Gestión de Clases</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <h4 className="font-semibold text-base mb-1">Gestión de Clases</h4>
+                    <p className="text-sm text-slate-600">
                       Organiza estudiantes y asigna tareas fácilmente
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="w-2 h-2 bg-sky-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-sm sm:text-base">Seguimiento de Progreso</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Monitorea el avance de cada estudiante</p>
+                    <h4 className="font-semibold text-base mb-1">Seguimiento de Progreso</h4>
+                    <p className="text-sm text-slate-600">Monitorea el avance de cada estudiante</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="w-2 h-2 bg-sky-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-sm sm:text-base">Recursos Didácticos</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <h4 className="font-semibold text-base mb-1">Recursos Didácticos</h4>
+                    <p className="text-sm text-slate-600">
                       Acceso a ejercicios y proyectos prediseñados
                     </p>
                   </div>
                 </div>
-                <Link href="/signup">
-                  <Button className="w-full mt-4 sm:mt-6 text-sm sm:text-base">Comenzar como Profesor</Button>
+                <Link href="/signup" className="block mt-6">
+                  <Button className="w-full">Comenzar como Profesor</Button>
                 </Link>
               </CardContent>
             </Card>
 
             {/* Para Estudiantes */}
-            <Card className="p-4 sm:p-6 lg:p-8 hover:shadow-lg transition-shadow" id="estudiantes">
-              <CardHeader className="text-center pb-4 sm:pb-6">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+            <Card className="p-6 sm:p-8 hover:shadow-xl transition-all duration-300 border-2 hover:border-sky-200" id="estudiantes">
+              <CardHeader className="text-center pb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <BookOpen className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-xl sm:text-2xl">Para Estudiantes</CardTitle>
-                <CardDescription className="text-sm sm:text-base">
+                <CardTitle className="text-2xl">Para Estudiantes</CardTitle>
+                <CardDescription className="text-base">
                   Aprende a tu ritmo con contenido interactivo
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 sm:space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-sm sm:text-base">Lecciones Interactivas</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <h4 className="font-semibold text-base mb-1">Lecciones Interactivas</h4>
+                    <p className="text-sm text-slate-600">
                       Aprende con ejemplos prácticos y ejercicios
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-sm sm:text-base">Proyectos Reales</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <h4 className="font-semibold text-base mb-1">Proyectos Reales</h4>
+                    <p className="text-sm text-slate-600">
                       Construye aplicaciones desde el primer día
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <h4 className="font-semibold text-sm sm:text-base">Comunidad de Apoyo</h4>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
+                    <h4 className="font-semibold text-base mb-1">Comunidad de Apoyo</h4>
+                    <p className="text-sm text-slate-600">
                       Conecta con otros estudiantes y profesores
                     </p>
                   </div>
                 </div>
-                <Link href="/signup">
-                  <Button className="w-full mt-4 sm:mt-6 text-sm sm:text-base">Comenzar como Estudiante</Button>
+                <Link href="/signup" className="block mt-6">
+                  <Button className="w-full">Comenzar como Estudiante</Button>
                 </Link>
               </CardContent>
             </Card>
@@ -254,25 +267,28 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 sm:py-16 bg-muted/30" id="curso">
+      <section className="py-12 sm:py-16 lg:py-20" id="curso">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 sm:mb-12">
+            <div className="inline-block mb-4 px-3 py-1 bg-sky-100 rounded-full text-sm font-medium text-sky-700">
+              ✨ Características
+            </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-balance leading-tight">
               Curso completo y gratuito
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
               Nuestro curso de Introducción a Python incluye todo lo que necesitas para comenzar a programar, sin
               costo alguno.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            <Card className="text-center p-4 sm:p-6">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <Code className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+            <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 border-2 hover:border-sky-200">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <Code className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-lg sm:text-xl font-semibold mb-2">Sin Instalaciones</h3>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <h3 className="text-xl font-semibold mb-2">Sin Instalaciones</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
                 Programa Python directamente en tu navegador. Comienza el curso inmediatamente sin configuraciones.
               </p>
             </Card>

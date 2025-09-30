@@ -1,41 +1,43 @@
-
 "use client";
 import { createClient } from "@/utils/supabase/client";
 import React, { useEffect, useState } from "react";
 
 const UserGreetText = () => {
   const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClient();
+
   useEffect(() => {
     const fetchUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+      setIsLoading(false);
     };
     fetchUser();
   }, []);
+
+  if (isLoading) {
+    return null; // O un skeleton loader si prefieres
+  }
+
   if (user !== null) {
-    console.log(user);
+    const displayName = user.user_metadata.full_name || user.email?.split('@')[0] || "Usuario";
+
     return (
-      <p
-        className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 
-        backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30"
-      >
-        hello&nbsp;
-        <code className="font-mono font-bold">{user.user_metadata.full_name ?? "user"}!</code>
-      </p>
+      <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100 border border-slate-200">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm">
+          {displayName.charAt(0).toUpperCase()}
+        </div>
+        <span className="text-sm font-medium text-slate-700">
+          {displayName}
+        </span>
+      </div>
     );
   }
-  return (
-    <p
-      className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl 
-    dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30"
-    >
-      Get started editing&nbsp;
-      <code className="font-mono font-bold">app/page.tsx</code>
-    </p>
-  );
+
+  return null;
 };
 
 export default UserGreetText;
