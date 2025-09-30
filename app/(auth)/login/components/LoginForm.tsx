@@ -1,5 +1,6 @@
-import Link from "next/link"
+"use client";
 
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -12,8 +13,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { login } from "@/lib/auth-actions"
 import SignInWithGoogleButton from "./SignInWithGoogleButton"
+import { useSearchParams } from "next/navigation"
 
 export function LoginForm() {
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect')
+
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
@@ -23,32 +28,42 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action="">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link href="/forgot-password" className="ml-auto inline-block text-sm underline">
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input id="password" name="password" type="password" required />
-              </div>
-              <Button type="submit" formAction={login} className="w-full">
-                Login
-              </Button>
-             <SignInWithGoogleButton/> 
+        {redirect && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-900">
+              Debes iniciar sesión para acceder a esa página
+            </p>
+          </div>
+        )}
+        <form action={login}>
+          {redirect && (
+            <input type="hidden" name="redirect" value={redirect} />
+          )}
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+              />
             </div>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <Link href="/forgot-password" className="ml-auto inline-block text-sm underline">
+                  Forgot your password?
+                </Link>
+              </div>
+              <Input id="password" name="password" type="password" required />
+            </div>
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+            <SignInWithGoogleButton/> 
+          </div>
         </form>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}

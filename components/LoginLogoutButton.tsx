@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { signout } from "@/lib/auth-actions";
-import { LogOut, LogIn } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 
 const LoginButton = () => {
   const [user, setUser] = useState<any>(null);
@@ -42,7 +42,7 @@ const LoginButton = () => {
           setUser(null);
         }}
         variant="outline"
-        className="w-full sm:w-auto gap-2"
+        className="w-full sm:w-auto gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
       >
         <LogOut className="w-4 h-4" />
         <span className="hidden sm:inline">Cerrar sesión</span>
@@ -57,9 +57,9 @@ const LoginButton = () => {
       onClick={() => {
         router.push("/login");
       }}
-      className="w-full sm:w-auto gap-2"
+      className="w-full sm:w-auto gap-2 bg-sky-600 hover:bg-sky-700"
     >
-      <LogIn className="w-4 h-4" />
+      <User className="w-4 h-4" />
       <span className="hidden sm:inline">Iniciar sesión</span>
       <span className="sm:hidden">Login</span>
     </Button>

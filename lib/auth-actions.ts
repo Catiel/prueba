@@ -12,6 +12,8 @@ export async function login(formData: FormData) {
     password: formData.get("password") as string,
   };
 
+  const redirectTo = formData.get("redirect") as string;
+
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
@@ -20,7 +22,13 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+
+  // Redirigir a la página que intentaba acceder o al dashboard
+  if (redirectTo && redirectTo.startsWith('/')) {
+    redirect(redirectTo);
+  }
+
+  redirect("/dashboard");
 }
 
 export async function signup(formData: FormData) {
@@ -43,7 +51,7 @@ export async function signup(formData: FormData) {
         full_name: `${firstName} ${lastName}`,
         email: email,
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/dashboard`,
     },
   });
 
@@ -57,7 +65,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/dashboard"); // Redirigir al dashboard después del registro
 }
 
 export async function signout() {
@@ -69,7 +77,8 @@ export async function signout() {
     redirect("/error");
   }
 
-  redirect("/logout");
+  revalidatePath("/", "layout");
+  redirect("/"); // Redirigir a la página principal después de cerrar sesión
 }
 
 export async function signInWithGoogle() {
@@ -81,7 +90,7 @@ export async function signInWithGoogle() {
         access_type: "offline",
         prompt: "consent",
       },
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/dashboard`,
     },
   });
 
@@ -101,7 +110,6 @@ export async function resetPassword(formData: FormData) {
     return { error: "Por favor ingresa un correo electrónico válido" };
   }
 
-  // Verificar si el usuario existe y cómo se registró
   const { data: userData } = await supabase
     .from('profiles')
     .select('email')
@@ -109,15 +117,12 @@ export async function resetPassword(formData: FormData) {
     .single();
 
   if (!userData) {
-    // No revelar si el email existe o no por seguridad
     return {
       success: true,
       message: "Si el correo está registrado, recibirás un enlace de recuperación"
     };
   }
 
-  // Intentar enviar el email de recuperación
-  // Supabase permite esto incluso para usuarios OAuth
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/auth/update-password`,
   });
@@ -125,8 +130,6 @@ export async function resetPassword(formData: FormData) {
   if (error) {
     console.error("Reset password error:", error);
 
-    // Si el error es porque el usuario no tiene contraseña (OAuth)
-    // Supabase igualmente enviará el email permitiendo establecer una
     if (error.message.includes("User not found")) {
       return {
         success: true,
@@ -153,14 +156,12 @@ export async function updatePassword(formData: FormData) {
     return { error: "La contraseña debe tener al menos 6 caracteres" };
   }
 
-  // Verificar que el usuario está autenticado
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
   if (userError || !user) {
     return { error: "Sesión inválida. Solicita un nuevo enlace de recuperación." };
   }
 
-  // Actualizar la contraseña
   const { error } = await supabase.auth.updateUser({
     password: password,
   });
@@ -169,9 +170,6 @@ export async function updatePassword(formData: FormData) {
     console.error("Update password error:", error);
     return { error: "No se pudo actualizar la contraseña" };
   }
-
-  // Si el usuario se registró con OAuth y ahora tiene contraseña
-  // Supabase automáticamente habilitará el login con email/password
 
   return { success: true };
 }

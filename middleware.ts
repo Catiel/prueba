@@ -1,8 +1,58 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
+import { createClient } from '@/utils/supabase/server'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  const { pathname } = request.nextUrl
+
+  // Actualizar la sesión
+  const response = await updateSession(request)
+
+  // Crear cliente de Supabase para verificar autenticación
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Rutas públicas que NO requieren autenticación
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/auth/confirm',
+    '/auth/update-password',
+    '/error',
+    '/logout',
+    '/signup/check-email',
+    '/signup/success'
+  ]
+
+  // Rutas protegidas que REQUIEREN autenticación
+  const protectedRoutes = [
+    '/dashboard',
+    '/profile',
+    '/courses',
+    '/lessons'
+  ]
+
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+
+  // Si el usuario está autenticado y trata de acceder a rutas de auth, redirigir al dashboard
+  if (user && (pathname === '/login' || pathname === '/signup')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // Si el usuario NO está autenticado y trata de acceder a una ruta protegida
+  if (!user && isProtectedRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('redirect', pathname) // Guardar la URL a la que quería ir
+    return NextResponse.redirect(url)
+  }
+
+  return response
 }
 
 export const config = {
