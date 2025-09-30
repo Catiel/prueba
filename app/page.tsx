@@ -21,9 +21,9 @@ function CodeEditorPreview() {
       <div className="space-y-2">
         <div className="text-slate-500"># Tu primer programa en Python</div>
         <div className="text-green-400">def saludar(nombre):</div>
-        <div className="ml-4 text-slate-100">print(f"¡Hola, {"{nombre}"}!")</div>
-        <div className="ml-4 text-slate-100">print("¡Bienvenido a Aprende Code!")</div>
-        <div className="text-green-400 mt-4">saludar("{nombre}")</div>
+        <div className="ml-4 text-slate-100">print(f&quot;¡Hola, {"{nombre}"}&quot;!)</div>
+        <div className="ml-4 text-slate-100">print(&quot;¡Bienvenido a Aprende Code!&quot;)</div>
+        <div className="text-green-400 mt-4">saludar(&quot;{nombre}&quot;)</div>
         <div className="text-slate-500 mt-4"># Salida:</div>
         <div className="text-yellow-300"># ¡Hola, Estudiante!</div>
         <div className="text-yellow-300"># ¡Bienvenido a Aprende Code!</div>
@@ -39,8 +39,9 @@ export default function Home() {
       <header className="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
+            {/* Logo - Coloca tu imagen en /public/logo.png */}
             <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                 <Image
                   src="/logo.png"
                   alt="Aprende Code Logo"
@@ -125,7 +126,7 @@ export default function Home() {
                 Tu primer programa en Python
               </h2>
               <p className="text-base sm:text-lg text-slate-600 mb-6 sm:mb-8 leading-relaxed">
-                Desde "Hola Mundo" hasta proyectos completos. Nuestro curso de Introducción a Python te lleva paso a
+                Desde &quot;Hola Mundo&quot; hasta proyectos completos. Nuestro curso de Introducción a Python te lleva paso a
                 paso desde los conceptos básicos hasta crear tus primeras aplicaciones.
               </p>
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">

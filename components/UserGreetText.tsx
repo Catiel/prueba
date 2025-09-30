@@ -12,9 +12,10 @@ const UserGreetText = () => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
+
     const fetchUserAndProfile = async () => {
       const {
         data: { user },

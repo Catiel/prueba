@@ -16,9 +16,10 @@ export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
+
     const fetchUserAndProfile = async () => {
       const {
         data: { user },

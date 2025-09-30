@@ -10,9 +10,10 @@ const LoginButton = () => {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
+
     const fetchUser = async () => {
       const {
         data: { user },
@@ -20,6 +21,7 @@ const LoginButton = () => {
       setUser(user);
       setIsLoading(false);
     };
+
     fetchUser();
   }, []);
 
