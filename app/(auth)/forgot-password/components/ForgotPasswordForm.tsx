@@ -33,7 +33,10 @@ export function ForgotPasswordForm() {
       if (result.error) {
         setError(result.error);
       } else {
-        setMessage(result.message || "Revisa tu correo electrónico para el enlace de recuperación");
+        setMessage(
+          result.message ||
+            "Revisa tu correo electrónico para el enlace de recuperación"
+        );
       }
     } catch (err) {
       setError("Ocurrió un error. Por favor intenta de nuevo.");
@@ -47,20 +50,11 @@ export function ForgotPasswordForm() {
       <CardHeader>
         <CardTitle className="text-2xl">Recuperar Contraseña</CardTitle>
         <CardDescription>
-          Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña
+          Ingresa tu correo electrónico y te enviaremos un enlace para
+          restablecer tu contraseña
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 mb-4">
-          <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-blue-900">
-              Si te registraste con Google, también puedes usar este formulario
-              para establecer una contraseña y acceder con email.
-            </p>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -76,13 +70,13 @@ export function ForgotPasswordForm() {
             </div>
 
             {message && (
-              <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-md">
+              <div className="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-600">
                 {message}
               </div>
             )}
 
             {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600">
                 {error}
               </div>
             )}

@@ -1,7 +1,7 @@
-import { IAuthRepository } from '@/src/core/interfaces/repositories/IAuthRepository';
-import { LoginCredentials, SignUpData } from '@/src/core/types/auth.types';
-import { UserEntity } from '@/src/core/entities/User.entity';
-import { createClient } from '../supabase/server';
+import { IAuthRepository } from "@/src/core/interfaces/repositories/IAuthRepository";
+import { LoginCredentials, SignUpData } from "@/src/core/types/auth.types";
+import { UserEntity } from "@/src/core/entities/User.entity";
+import { createClient } from "../supabase/server";
 
 export class SupabaseAuthRepository implements IAuthRepository {
   async login(credentials: LoginCredentials): Promise<UserEntity> {
@@ -13,13 +13,15 @@ export class SupabaseAuthRepository implements IAuthRepository {
     });
 
     if (error || !data.user) {
-      throw new Error('Email o contraseña incorrectos');
+      throw new Error("Email o contraseña incorrectos");
     }
 
     return UserEntity.fromSupabase(data.user);
   }
 
-  async signUp(data: SignUpData): Promise<{ user: UserEntity; needsConfirmation: boolean }> {
+  async signUp(
+    data: SignUpData
+  ): Promise<{ user: UserEntity; needsConfirmation: boolean }> {
     const supabase = createClient();
 
     const { data: authData, error } = await supabase.auth.signUp({
@@ -35,7 +37,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     });
 
     if (error || !authData.user) {
-      throw new Error('Error al crear la cuenta');
+      throw new Error("Error al crear la cuenta");
     }
 
     const user = UserEntity.fromSupabase(authData.user);
@@ -44,18 +46,20 @@ export class SupabaseAuthRepository implements IAuthRepository {
     return { user, needsConfirmation };
   }
 
-  async signOut(): Promise<any> {
+  async signOut(): Promise<void> {
     const supabase = createClient();
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      throw new Error('Error al cerrar sesión');
+      throw new Error("Error al cerrar sesión");
     }
   }
 
-  async getCurrentUser(): Promise<any> {
+  async getCurrentUser(): Promise<UserEntity | null> {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     return user ? UserEntity.fromSupabase(user) : null;
   }
@@ -64,24 +68,24 @@ export class SupabaseAuthRepository implements IAuthRepository {
     const supabase = createClient();
 
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+          access_type: "offline",
+          prompt: "consent",
         },
         redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?next=/dashboard`,
       },
     });
 
     if (error || !data.url) {
-      throw new Error('Error al iniciar sesión con Google');
+      throw new Error("Error al iniciar sesión con Google");
     }
 
     return data.url;
   }
 
-  async resetPassword(email: string): Promise<any> {
+  async resetPassword(email: string): Promise<void> {
     const supabase = createClient();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -89,11 +93,11 @@ export class SupabaseAuthRepository implements IAuthRepository {
     });
 
     if (error) {
-      throw new Error('Error al enviar el correo de recuperación');
+      throw new Error("Error al enviar el correo de recuperación");
     }
   }
 
-  async updatePassword(password: string): Promise<any> {
+  async updatePassword(password: string): Promise<void> {
     const supabase = createClient();
 
     const { error } = await supabase.auth.updateUser({
@@ -101,7 +105,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     });
 
     if (error) {
-      throw new Error('No se pudo actualizar la contraseña');
+      throw new Error("No se pudo actualizar la contraseña");
     }
   }
 }

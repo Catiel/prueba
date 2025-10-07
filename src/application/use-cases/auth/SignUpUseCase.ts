@@ -1,6 +1,6 @@
-import { IAuthRepository } from '@/src/core/interfaces/repositories/IAuthRepository';
-import { SignUpData, AuthResult } from '@/src/core/types/auth.types';
-import { UserEntity } from '@/src/core/entities/User.entity';
+import { IAuthRepository } from "@/src/core/interfaces/repositories/IAuthRepository";
+import { SignUpData, AuthResult } from "@/src/core/types/auth.types";
+import { UserEntity } from "@/src/core/entities/User.entity";
 
 interface SignUpResult extends AuthResult {
   user?: UserEntity;
@@ -10,7 +10,7 @@ interface SignUpResult extends AuthResult {
 export class SignUpUseCase {
   constructor(private readonly authRepository: IAuthRepository) {}
 
-  async execute(data: SignUpData): Promise<any> {
+  async execute(data: SignUpData): Promise<SignUpResult> {
     try {
       const result = await this.authRepository.signUp(data);
       return {
@@ -21,7 +21,7 @@ export class SignUpUseCase {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error al registrarse',
+        error: error instanceof Error ? error.message : "Error al registrarse",
       };
     }
   }
