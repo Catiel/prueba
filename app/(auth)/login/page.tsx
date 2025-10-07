@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/src/infrastructure/supabase/server'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 import { LoginForm } from './components/LoginForm'

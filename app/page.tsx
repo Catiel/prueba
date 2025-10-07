@@ -6,7 +6,7 @@ import Image from "next/image"
 import UserGreetText from "@/components/UserGreetText"
 import LoginButton from "@/components/LoginLogoutButton"
 import MobileMenu from "@/components/MobileMenu"
-import { createClient } from "@/utils/supabase/server"
+import { createClient } from "@/src/infrastructure/supabase/server"
 import { redirect } from "next/navigation"
 
 function CodeEditorPreview() {

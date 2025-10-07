@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/src/infrastructure/supabase/client";
 import { LogOut, User } from "lucide-react";
 
 const LoginButton = () => {

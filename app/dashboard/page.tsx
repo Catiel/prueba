@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation"
-import { createClient } from "@/utils/supabase/server"
+import { createClient } from "@/src/infrastructure/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, Code, Trophy, TrendingUp, Clock, Star, LogOut } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { signout } from "@/lib/auth-actions"
+import { signout } from "@/src/presentation/actions/auth.actions"
 
 export default async function DashboardPage() {
   const supabase = createClient()

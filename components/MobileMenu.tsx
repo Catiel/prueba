@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/src/infrastructure/supabase/client";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import LoginButton from "./LoginLogoutButton";
