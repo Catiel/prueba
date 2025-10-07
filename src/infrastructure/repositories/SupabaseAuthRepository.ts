@@ -4,7 +4,7 @@ import { UserEntity } from '@/src/core/entities/User.entity';
 import { createClient } from '../supabase/server';
 
 export class SupabaseAuthRepository implements IAuthRepository {
-  async login(credentials: LoginCredentials): Promise {
+  async login(credentials: LoginCredentials): Promise<UserEntity> {
     const supabase = createClient();
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -19,7 +19,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     return UserEntity.fromSupabase(data.user);
   }
 
-  async signUp(data: SignUpData): Promise {
+  async signUp(data: SignUpData): Promise<{ user: UserEntity; needsConfirmation: boolean }> {
     const supabase = createClient();
 
     const { data: authData, error } = await supabase.auth.signUp({
@@ -44,7 +44,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     return { user, needsConfirmation };
   }
 
-  async signOut(): Promise {
+  async signOut(): Promise<any> {
     const supabase = createClient();
     const { error } = await supabase.auth.signOut();
 
@@ -53,14 +53,14 @@ export class SupabaseAuthRepository implements IAuthRepository {
     }
   }
 
-  async getCurrentUser(): Promise {
+  async getCurrentUser(): Promise<any> {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     return user ? UserEntity.fromSupabase(user) : null;
   }
 
-  async signInWithGoogle(): Promise {
+  async signInWithGoogle(): Promise<any> {
     const supabase = createClient();
 
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -81,7 +81,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     return data.url;
   }
 
-  async resetPassword(email: string): Promise {
+  async resetPassword(email: string): Promise<any> {
     const supabase = createClient();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -93,7 +93,7 @@ export class SupabaseAuthRepository implements IAuthRepository {
     }
   }
 
-  async updatePassword(password: string): Promise {
+  async updatePassword(password: string): Promise<any> {
     const supabase = createClient();
 
     const { error } = await supabase.auth.updateUser({
