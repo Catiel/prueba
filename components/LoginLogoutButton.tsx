@@ -23,7 +23,23 @@ const LoginButton = () => {
     };
 
     fetchUser();
-  }, []);
+
+    // Escuchar cambios en la autenticación
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      router.refresh(); // Refrescar cuando cambie el estado de auth
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  const handleSignOut = async () => {
+    await signout();
+    setUser(null);
+    router.refresh();
+  };
 
   if (isLoading) {
     return (
@@ -37,10 +53,7 @@ const LoginButton = () => {
   if (user) {
     return (
       <Button
-        onClick={() => {
-          signout();
-          setUser(null);
-        }}
+        onClick={handleSignOut}
         variant="outline"
         className="w-full sm:w-auto gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
       >

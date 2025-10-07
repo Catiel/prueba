@@ -12,23 +12,19 @@ export async function login(formData: FormData) {
     password: formData.get("password") as string,
   };
 
-  const redirectTo = formData.get("redirect") as string;
-
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
     console.error("Login error:", error);
-    redirect("/error");
+    return { error: "Email o contraseña incorrectos" };
   }
 
+  // Revalidar todas las rutas importantes
   revalidatePath("/", "layout");
+  revalidatePath("/dashboard");
 
-  // Redirigir a la página que intentaba acceder o al dashboard
-  if (redirectTo && redirectTo.startsWith('/')) {
-    redirect(redirectTo);
-  }
-
-  redirect("/dashboard");
+  // No hacer redirect aquí - dejar que el cliente maneje la navegación
+  return { success: true };
 }
 
 export async function signup(formData: FormData) {
@@ -65,7 +61,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard"); // Redirigir al dashboard después del registro
+  redirect("/dashboard");
 }
 
 export async function signout() {
@@ -78,7 +74,7 @@ export async function signout() {
   }
 
   revalidatePath("/", "layout");
-  redirect("/"); // Redirigir a la página principal después de cerrar sesión
+  redirect("/");
 }
 
 export async function signInWithGoogle() {
@@ -111,15 +107,16 @@ export async function resetPassword(formData: FormData) {
   }
 
   const { data: userData } = await supabase
-    .from('profiles')
-    .select('email')
-    .eq('email', email)
+    .from("profiles")
+    .select("email")
+    .eq("email", email)
     .single();
 
   if (!userData) {
     return {
       success: true,
-      message: "Si el correo está registrado, recibirás un enlace de recuperación"
+      message:
+        "Si el correo está registrado, recibirás un enlace de recuperación",
     };
   }
 
@@ -133,18 +130,19 @@ export async function resetPassword(formData: FormData) {
     if (error.message.includes("User not found")) {
       return {
         success: true,
-        message: "Si el correo está registrado, recibirás un enlace de recuperación"
+        message:
+          "Si el correo está registrado, recibirás un enlace de recuperación",
       };
     }
 
     return {
-      error: "Ocurrió un error al enviar el correo. Intenta nuevamente."
+      error: "Ocurrió un error al enviar el correo. Intenta nuevamente.",
     };
   }
 
   return {
     success: true,
-    message: "Revisa tu correo para el enlace de recuperación"
+    message: "Revisa tu correo para el enlace de recuperación",
   };
 }
 
@@ -156,10 +154,15 @@ export async function updatePassword(formData: FormData) {
     return { error: "La contraseña debe tener al menos 6 caracteres" };
   }
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    return { error: "Sesión inválida. Solicita un nuevo enlace de recuperación." };
+    return {
+      error: "Sesión inválida. Solicita un nuevo enlace de recuperación.",
+    };
   }
 
   const { error } = await supabase.auth.updateUser({
