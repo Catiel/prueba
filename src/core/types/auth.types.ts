@@ -1,3 +1,5 @@
+import { UserRole } from './roles.types';
+
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -20,7 +22,7 @@ export interface UserData {
   email: string;
   full_name?: string;
   avatar_url?: string;
-  user_metadata?: Record<string, unknown>;
+  user_metadata?: Record<string, any>;
   created_at?: string;
 }
 
@@ -29,4 +31,7 @@ export interface ProfileData {
   email: string;
   full_name: string | null;
   avatar_url: string | null;
+  role: UserRole; // NUEVO
+  created_at: string; // NUEVO
+  updated_at: string; // NUEVO
 }
