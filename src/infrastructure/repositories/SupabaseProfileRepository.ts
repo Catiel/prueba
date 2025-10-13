@@ -8,7 +8,7 @@ export class SupabaseProfileRepository implements IProfileRepository {
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, email, full_name, avatar_url")
+      .select("id, email, full_name, avatar_url, role, created_at, updated_at")
       .eq("id", userId)
       .single();
 
@@ -32,7 +32,7 @@ export class SupabaseProfileRepository implements IProfileRepository {
       .from("profiles")
       .update(updateData)
       .eq("id", userId)
-      .select("id, email, full_name, avatar_url")
+      .select("id, email, full_name, avatar_url, role, created_at, updated_at")
       .single();
 
     if (error || !data) {
