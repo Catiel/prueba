@@ -66,11 +66,11 @@ export class CreateModuleUseCase {
       }
 
       // Create module
-      const module = await this.moduleRepository.createModule(input);
+      const moduleData = await this.moduleRepository.createModule(input);
 
       return {
         success: true,
-        module,
+        module: moduleData,
       };
     } catch (error) {
       return {
@@ -80,4 +80,3 @@ export class CreateModuleUseCase {
     }
   }
 }
-

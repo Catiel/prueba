@@ -21,8 +21,8 @@ export class GetLessonsByModuleUseCase {
   async execute(moduleId: string): Promise<GetLessonsByModuleResult> {
     try {
       // Verify module exists
-      const module = await this.moduleRepository.getModuleById(moduleId);
-      if (!module) {
+      const moduleData = await this.moduleRepository.getModuleById(moduleId);
+      if (!moduleData) {
         return {
           success: false,
           error: 'Módulo no encontrado',
@@ -71,4 +71,3 @@ export class GetLessonsByModuleUseCase {
     }
   }
 }
-

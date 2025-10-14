@@ -44,9 +44,9 @@ export default async function ModuleLessonsPage({ params }: PageProps) {
   // Obtener módulo
   const modulesResult = await getModulesByCourse(courseId);
   const modules = 'error' in modulesResult ? [] : modulesResult.modules || [];
-  const module = modules.find(m => m.id === moduleId);
+  const moduleData = modules.find(m => m.id === moduleId);
 
-  if (!module) {
+  if (!moduleData) {
     redirect(`/dashboard/admin/courses/${courseId}/content`);
   }
 
@@ -131,7 +131,7 @@ export default async function ModuleLessonsPage({ params }: PageProps) {
               Gestión de Lecciones
             </h1>
             <p className="text-pretty text-sm text-slate-600 sm:text-base">
-              {course.title} → {module.title}
+              {course.title} → {moduleData.title}
             </p>
           </div>
         </div>
@@ -177,4 +177,3 @@ export default async function ModuleLessonsPage({ params }: PageProps) {
     </div>
   );
 }
-

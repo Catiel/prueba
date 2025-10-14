@@ -32,8 +32,8 @@ export class CreateLessonUseCase {
   async execute(input: CreateLessonInput): Promise<CreateLessonResult> {
     try {
       // Verify module exists
-      const module = await this.moduleRepository.getModuleById(input.module_id);
-      if (!module) {
+      const moduleData = await this.moduleRepository.getModuleById(input.module_id);
+      if (!moduleData) {
         return {
           success: false,
           error: 'Módulo no encontrado',
@@ -66,7 +66,7 @@ export class CreateLessonUseCase {
 
       // If teacher, check if assigned to the course
       if (profile.isTeacher()) {
-        const assignedTeachers = await this.courseRepository.getCourseTeachers(module.courseId);
+        const assignedTeachers = await this.courseRepository.getCourseTeachers(moduleData.courseId);
         if (!assignedTeachers.includes(currentUser.id)) {
           return {
             success: false,
@@ -90,4 +90,3 @@ export class CreateLessonUseCase {
     }
   }
 }
-

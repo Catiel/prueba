@@ -22,8 +22,8 @@ export class UpdateModuleUseCase {
   async execute(moduleId: string, data: Partial<CourseModuleData>): Promise<UpdateModuleResult> {
     try {
       // Verify module exists
-      const module = await this.moduleRepository.getModuleById(moduleId);
-      if (!module) {
+      const moduleData = await this.moduleRepository.getModuleById(moduleId);
+      if (!moduleData) {
         return {
           success: false,
           error: 'Módulo no encontrado',
@@ -57,7 +57,7 @@ export class UpdateModuleUseCase {
 
       // If teacher, check if assigned to the course
       if (profile.isTeacher()) {
-        const assignedTeachers = await this.courseRepository.getCourseTeachers(module.courseId);
+        const assignedTeachers = await this.courseRepository.getCourseTeachers(moduleData.courseId);
         if (!assignedTeachers.includes(currentUser.id)) {
           return {
             success: false,
@@ -67,10 +67,10 @@ export class UpdateModuleUseCase {
       }
 
       // Handle order_index change with automatic reordering
-      if (data.order_index !== undefined && data.order_index !== module.orderIndex) {
-        const allModules = await this.moduleRepository.getModulesByCourseId(module.courseId);
+      if (data.order_index !== undefined && data.order_index !== moduleData.orderIndex) {
+        const allModules = await this.moduleRepository.getModulesByCourseId(moduleData.courseId);
         const newOrder = data.order_index;
-        const oldOrder = module.orderIndex;
+        const oldOrder = moduleData.orderIndex;
 
         // Validate new order is within bounds
         if (newOrder < 1 || newOrder > allModules.length) {
@@ -119,4 +119,3 @@ export class UpdateModuleUseCase {
     }
   }
 }
-

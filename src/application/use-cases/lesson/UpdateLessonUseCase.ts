@@ -33,8 +33,8 @@ export class UpdateLessonUseCase {
       }
 
       // Get module
-      const module = await this.moduleRepository.getModuleById(lesson.moduleId);
-      if (!module) {
+      const moduleData = await this.moduleRepository.getModuleById(lesson.moduleId);
+      if (!moduleData) {
         return {
           success: false,
           error: 'Módulo no encontrado',
@@ -67,7 +67,7 @@ export class UpdateLessonUseCase {
 
       // If teacher, check if assigned to the course
       if (profile.isTeacher()) {
-        const assignedTeachers = await this.courseRepository.getCourseTeachers(module.courseId);
+        const assignedTeachers = await this.courseRepository.getCourseTeachers(moduleData.courseId);
         if (!assignedTeachers.includes(currentUser.id)) {
           return {
             success: false,
@@ -129,4 +129,3 @@ export class UpdateLessonUseCase {
     }
   }
 }
-

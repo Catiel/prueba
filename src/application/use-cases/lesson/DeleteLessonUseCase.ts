@@ -30,8 +30,8 @@ export class DeleteLessonUseCase {
       }
 
       // Get module
-      const module = await this.moduleRepository.getModuleById(lesson.moduleId);
-      if (!module) {
+      const moduleData = await this.moduleRepository.getModuleById(lesson.moduleId);
+      if (!moduleData) {
         return {
           success: false,
           error: 'Módulo no encontrado',
@@ -76,4 +76,3 @@ export class DeleteLessonUseCase {
     }
   }
 }
-
