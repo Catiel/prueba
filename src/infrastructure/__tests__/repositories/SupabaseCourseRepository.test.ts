@@ -20,6 +20,7 @@ describe('SupabaseCourseRepository', () => {
       update: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
+      in: jest.fn().mockReturnThis(),
       single: jest.fn().mockResolvedValue({ data: null, error: null }),
       order: jest.fn().mockReturnThis(),
       rpc: jest.fn().mockResolvedValue({ data: null, error: null }),
@@ -290,6 +291,151 @@ describe('SupabaseCourseRepository', () => {
       });
 
       await expect(repository.deleteCourse('course-1')).rejects.toThrow('Error al eliminar el curso');
+    });
+  });
+
+  describe('getActiveCourse', () => {
+    it('should return active course when found', async () => {
+      const mockCourse = {
+        id: 'course-1',
+        title: 'Active Course',
+        description: 'Description',
+        start_date: '2024-01-01',
+        end_date: '2024-12-31',
+        is_active: true,
+        created_by: 'admin-1',
+        created_at: '2024-01-01',
+        updated_at: '2024-01-01',
+      };
+
+      mockSupabase.rpc.mockResolvedValue({ data: [mockCourse], error: null });
+
+      const result = await repository.getActiveCourse();
+
+      expect(result).toBeInstanceOf(CourseEntity);
+      expect(result?.id).toBe('course-1');
+      expect(mockSupabase.rpc).toHaveBeenCalledWith('get_active_course');
+    });
+
+    it('should return null when no active course found', async () => {
+      mockSupabase.rpc.mockResolvedValue({ data: [], error: null });
+
+      const result = await repository.getActiveCourse();
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when rpc fails', async () => {
+      mockSupabase.rpc.mockResolvedValue({ 
+        data: null, 
+        error: { message: 'RPC failed' } 
+      });
+
+      const result = await repository.getActiveCourse();
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('getTeacherCourses', () => {
+    it('should return courses for a teacher', async () => {
+      const mockCourseTeachers = [
+        { course_id: 'course-1' },
+        { course_id: 'course-2' },
+      ];
+
+      const mockCourses = [
+        {
+          id: 'course-1',
+          title: 'Course 1',
+          description: 'Description 1',
+          start_date: '2024-01-01',
+          end_date: '2024-12-31',
+          is_active: true,
+          created_by: 'admin-1',
+          created_at: '2024-01-01',
+          updated_at: '2024-01-01',
+        },
+        {
+          id: 'course-2',
+          title: 'Course 2',
+          description: 'Description 2',
+          start_date: '2024-01-01',
+          end_date: '2024-12-31',
+          is_active: true,
+          created_by: 'admin-1',
+          created_at: '2024-01-01',
+          updated_at: '2024-01-01',
+        },
+      ];
+
+      // First call for course_teachers
+      mockSupabase.eq.mockResolvedValueOnce({ 
+        data: mockCourseTeachers, 
+        error: null 
+      });
+
+      // Second call for courses
+      mockSupabase.order.mockResolvedValueOnce({ 
+        data: mockCourses, 
+        error: null 
+      });
+
+      const result = await repository.getTeacherCourses('teacher-1');
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(CourseEntity);
+      expect(result[0].title).toBe('Course 1');
+    });
+
+    it('should return empty array when teacher has no courses', async () => {
+      mockSupabase.eq.mockResolvedValue({ 
+        data: [], 
+        error: null 
+      });
+
+      const result = await repository.getTeacherCourses('teacher-1');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should throw error when fetching course_teachers fails', async () => {
+      mockSupabase.eq.mockResolvedValue({ 
+        data: null, 
+        error: { message: 'Query failed' } 
+      });
+
+      await expect(repository.getTeacherCourses('teacher-1')).rejects.toThrow('Error al obtener cursos del docente');
+    });
+
+    it('should throw error when fetching courses fails', async () => {
+      mockSupabase.eq.mockResolvedValueOnce({ 
+        data: [{ course_id: 'course-1' }], 
+        error: null 
+      });
+
+      mockSupabase.order.mockResolvedValueOnce({ 
+        data: null, 
+        error: { message: 'Courses query failed' } 
+      });
+
+      await expect(repository.getTeacherCourses('teacher-1')).rejects.toThrow('Error al obtener cursos');
+    });
+
+    it('should return empty array when courses data is null', async () => {
+      mockSupabase.eq.mockResolvedValueOnce({ 
+        data: [{ course_id: 'course-1' }], 
+        error: null 
+      });
+
+      mockSupabase.order.mockResolvedValueOnce({ 
+        data: null, 
+        error: null 
+      });
+
+      const result = await repository.getTeacherCourses('teacher-1');
+
+      expect(result).toEqual([]);
     });
   });
 });
