@@ -66,7 +66,6 @@ export class SupabaseLessonRepository implements ILessonRepository {
       .single();
 
     if (error) {
-      console.error('Error updating lesson:', error);
       throw new Error(error.message || 'Error al actualizar lección');
     }
 

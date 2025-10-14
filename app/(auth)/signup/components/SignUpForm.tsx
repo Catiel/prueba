@@ -54,7 +54,7 @@ export function SignUpForm() {
       const result = await signup(formData);
 
       if (result?.error) {
-        setError(result.error);
+        setError(result.error || 'Error al crear la cuenta');
       } else {
         setSuccess("¡Cuenta creada! Redirigiendo...");
         setTimeout(() => {

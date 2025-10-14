@@ -22,7 +22,18 @@ export interface UserData {
   email: string;
   full_name?: string;
   avatar_url?: string;
-  user_metadata?: Record<string, any>;
+  user_metadata?: Record<string, unknown>;
+  created_at?: string;
+}
+
+export interface SupabaseUserData {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    full_name?: string;
+    avatar_url?: string;
+    [key: string]: unknown;
+  };
   created_at?: string;
 }
 

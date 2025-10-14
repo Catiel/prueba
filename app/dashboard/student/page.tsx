@@ -416,11 +416,14 @@ export default async function StudentDashboardPage() {
                         <Calendar className="h-3 w-3" />
                         <span>Inicia el {formatDate(course.startDate)}</span>
                       </div>
-                      {course.daysUntilStart > 0 && (
-                        <Badge className="mt-2 bg-orange-600" size="sm">
-                          En {course.daysUntilStart} días
-                        </Badge>
-                      )}
+                      {(() => {
+                        const daysUntilStart = Math.ceil((new Date(course.startDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                        return daysUntilStart > 0 && (
+                          <Badge className="mt-2 bg-orange-600 text-xs">
+                            En {daysUntilStart} días
+                          </Badge>
+                        );
+                      })()}
                     </div>
                   ))}
                 </CardContent>

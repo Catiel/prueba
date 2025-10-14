@@ -65,7 +65,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
       const result = await createUser(data);
 
       if ('error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error al crear el usuario');
       } else {
         setSuccess('Usuario creado exitosamente');
         reset();

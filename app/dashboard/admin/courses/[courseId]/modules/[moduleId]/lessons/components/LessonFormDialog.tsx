@@ -112,7 +112,7 @@ export function LessonFormDialog({ isOpen, onClose, mode, moduleId, lesson, maxO
       }
 
       if (result && 'error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error al guardar la lección');
       } else {
         onClose();
         router.refresh();

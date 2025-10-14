@@ -54,7 +54,7 @@ export function LoginForm() {
       const result = await login(formData);
 
       if (result?.error) {
-        setError(result.error);
+        setError(result.error || 'Error al iniciar sesión');
       } else {
         // Login exitoso - redirigir con router.push para forzar revalidación
         const redirectTo = redirect || "/dashboard";

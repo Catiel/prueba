@@ -66,7 +66,6 @@ export class SupabaseModuleRepository implements IModuleRepository {
       .single();
 
     if (error) {
-      console.error('Error updating module:', error);
       throw new Error(error.message || 'Error al actualizar módulo');
     }
 

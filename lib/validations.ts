@@ -134,7 +134,7 @@ export const moduleSchema = z.object({
     .max(500, 'La descripción no puede exceder 500 caracteres')
     .optional()
     .or(z.literal('')),
-  orderIndex: z.coerce
+  orderIndex: z
     .number()
     .int('El orden debe ser un número entero')
     .positive('El orden debe ser mayor a 0'),
@@ -160,11 +160,11 @@ export const lessonSchema = z.object({
     .max(50000, 'El contenido no puede exceder 50000 caracteres')
     .optional()
     .or(z.literal('')),
-  orderIndex: z.coerce
+  orderIndex: z
     .number()
     .int('El orden debe ser un número entero')
     .positive('El orden debe ser mayor a 0'),
-  durationMinutes: z.coerce
+  durationMinutes: z
     .number()
     .int('La duración debe ser un número entero')
     .positive('La duración debe ser mayor a 0')

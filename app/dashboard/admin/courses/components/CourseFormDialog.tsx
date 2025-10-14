@@ -111,7 +111,7 @@ export function CourseFormDialog({ isOpen, onClose, mode, course }: CourseFormDi
       }
 
       if (result && 'error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error al guardar el curso');
       } else {
         onClose();
         router.refresh();

@@ -53,14 +53,14 @@ export interface CourseTeacherData {
 
 export interface CreateCourseInput {
   title: string;
-  description: string;
+  description: string | null;
   start_date: string;
   end_date: string;
 }
 
 export interface UpdateCourseInput {
   title?: string;
-  description?: string;
+  description?: string | null;
   start_date?: string;
   end_date?: string;
   is_active?: boolean;

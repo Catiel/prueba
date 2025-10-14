@@ -45,7 +45,7 @@ export function ForgotPasswordForm() {
     try {
       const result = await resetPassword(formData);
       if (result.error) {
-        setError(result.error);
+        setError(result.error || 'Error al enviar el correo');
       } else {
         setMessage(
           result.message ||

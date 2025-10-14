@@ -92,10 +92,10 @@ export function UserManagementClient({ students, teachers }: UserManagementClien
       }
 
       if (result && 'error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error en la operación');
       } else {
         // Success
-        if (result && 'message' in result) {
+        if (result && 'message' in result && typeof result.message === 'string') {
           setSuccess(result.message);
         } else {
           setSuccess(

@@ -22,7 +22,6 @@ export async function getStudentProgress(studentId: string) {
       .eq('student_id', studentId);
 
     if (error) {
-      console.error('Error fetching student progress:', error);
       return { error: error.message };
     }
 
@@ -50,7 +49,6 @@ export async function getCourseWithModulesAndLessons(courseId: string) {
       .single();
 
     if (courseError) {
-      console.error('Error fetching course:', courseError);
       return { error: courseError.message };
     }
 
@@ -69,7 +67,6 @@ export async function getCourseWithModulesAndLessons(courseId: string) {
     const { data: modules, error: modulesError } = await modulesQuery;
 
     if (modulesError) {
-      console.error('Error fetching modules:', modulesError);
       return { error: modulesError.message };
     }
 
@@ -90,7 +87,6 @@ export async function getCourseWithModulesAndLessons(courseId: string) {
         const { data: lessons, error: lessonsError } = await lessonsQuery;
 
         if (lessonsError) {
-          console.error('Error fetching lessons for module:', module.id, lessonsError);
           return { ...module, lessons: [] };
         }
 
@@ -106,9 +102,7 @@ export async function getCourseWithModulesAndLessons(courseId: string) {
         .select('*')
         .eq('student_id', profile.id);
       
-      if (progressError) {
-        console.error('Error fetching progress:', progressError);
-      } else {
+      if (!progressError) {
         progress = progressData || [];
       }
     }
@@ -119,7 +113,6 @@ export async function getCourseWithModulesAndLessons(courseId: string) {
       progress,
     };
   } catch (error) {
-    console.error('Error in getCourseWithModulesAndLessons:', error);
     return { error: error instanceof Error ? error.message : 'Error al obtener curso' };
   }
 }
