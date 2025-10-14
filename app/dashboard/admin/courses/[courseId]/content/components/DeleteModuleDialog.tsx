@@ -41,7 +41,7 @@ export function DeleteModuleDialog({ isOpen, onClose, module }: DeleteModuleDial
       const result = await deleteModule(module.id);
 
       if ('error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error al eliminar el módulo');
       } else {
         onClose();
         router.refresh();
@@ -117,4 +117,3 @@ export function DeleteModuleDialog({ isOpen, onClose, module }: DeleteModuleDial
     </Dialog>
   );
 }
-

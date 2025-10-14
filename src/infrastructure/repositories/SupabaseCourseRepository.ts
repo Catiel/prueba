@@ -1,6 +1,6 @@
 import { ICourseRepository } from '@/src/core/interfaces/repositories/ICourseRepository';
 import { CourseEntity } from '@/src/core/entities/Course.entity';
-import { CreateCourseInput, UpdateCourseInput } from '@/src/core/types/course.types';
+import { CreateCourseInput, UpdateCourseInput, CourseData } from '@/src/core/types/course.types';
 import { createClient } from '@/src/infrastructure/supabase/server';
 
 export class SupabaseCourseRepository implements ICourseRepository {
@@ -180,15 +180,6 @@ export class SupabaseCourseRepository implements ICourseRepository {
 
     if (!data) return [];
 
-    return data.map((courseData: CourseData) => new CourseEntity({
-      id: courseData.id,
-      title: courseData.title,
-      description: courseData.description,
-      startDate: courseData.start_date,
-      endDate: courseData.end_date,
-      isActive: courseData.is_active,
-      createdAt: courseData.created_at,
-      updatedAt: courseData.updated_at,
-    }));
+    return data.map((courseData: CourseData) => CourseEntity.fromDatabase(courseData));
   }
 }

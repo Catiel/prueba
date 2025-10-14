@@ -74,7 +74,7 @@ export function TeacherAssignmentClient({
       }
 
       if ('error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error en la operación');
       } else {
         setSelectedTeacher(null);
         setAction(null);
@@ -300,4 +300,3 @@ export function TeacherAssignmentClient({
     </>
   );
 }
-

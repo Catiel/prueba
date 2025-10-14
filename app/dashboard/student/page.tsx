@@ -229,9 +229,18 @@ export default async function StudentDashboardPage() {
                       </div>
                     )}
 
-                    {course.status === 'upcoming' && course.daysUntilStart > 0 && (
+                    {course.status === 'upcoming' && (() => {
+                      const startDate = new Date(course.startDate);
+                      const today = new Date();
+                      const daysUntilStart = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                      return daysUntilStart > 0;
+                    })() && (
                       <div className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800">
-                        <strong>⏰ Comienza en {course.daysUntilStart} días</strong>
+                        <strong>⏰ Comienza en {(() => {
+                          const startDate = new Date(course.startDate);
+                          const today = new Date();
+                          return Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        })()} días</strong>
                       </div>
                     )}
 

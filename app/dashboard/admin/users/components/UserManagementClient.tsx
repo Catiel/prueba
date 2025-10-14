@@ -134,11 +134,11 @@ export function UserManagementClient({ students, teachers }: UserManagementClien
       }
 
       if (result && 'error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error en la operación');
       } else {
         // Success
         if (result && 'message' in result) {
-          setSuccess(result.message);
+          setSuccess(typeof result.message === 'string' ? result.message : 'Operación completada');
         } else {
           setSuccess(
             action === 'create' ? 'Usuario creado exitosamente' :

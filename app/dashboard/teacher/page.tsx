@@ -23,16 +23,17 @@ export default async function TeacherDashboardPage() {
   }
 
   // Obtener cursos asignados al docente
-  const coursesResult = await getTeacherCourses(profile.userId);
+  const coursesResult = await getTeacherCourses(profile.id);
   const courses = 'error' in coursesResult ? [] : coursesResult.courses || [];
 
   // Calcular estadísticas
   const activeCourses = courses.filter(c => c.status === 'active');
   const upcomingCourses = courses.filter(c => c.status === 'upcoming');
-  const completedCourses = courses.filter(c => c.status === 'completed');
+  const completedCourses = courses.filter(c => c.status === 'ended');
 
-  function formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+  function formatDate(dateInput: string | Date): string {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+    return date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -223,9 +224,18 @@ export default async function TeacherDashboardPage() {
                       </div>
                     )}
 
-                    {course.status === 'upcoming' && course.daysUntilStart > 0 && (
+                    {course.status === 'upcoming' && (() => {
+                      const startDate = new Date(course.startDate);
+                      const today = new Date();
+                      const daysUntilStart = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                      return daysUntilStart > 0;
+                    })() && (
                       <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-                        <strong>⏰ Inicia en {course.daysUntilStart} días</strong>
+                        <strong>⏰ Inicia en {(() => {
+                          const startDate = new Date(course.startDate);
+                          const today = new Date();
+                          return Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        })()} días</strong>
                       </div>
                     )}
 

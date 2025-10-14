@@ -41,7 +41,7 @@ export function DeleteCourseDialog({ isOpen, onClose, course }: DeleteCourseDial
       const result = await deleteCourse(course.id);
 
       if ('error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error al eliminar el curso');
       } else {
         onClose();
         router.refresh();
@@ -112,4 +112,3 @@ export function DeleteCourseDialog({ isOpen, onClose, course }: DeleteCourseDial
     </Dialog>
   );
 }
-

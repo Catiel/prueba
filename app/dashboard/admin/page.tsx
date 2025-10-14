@@ -34,7 +34,7 @@ export default async function AdminDashboardPage() {
   // Calcular estadísticas
   const activeCourses = courses.filter(c => c.status === 'active').length;
   const upcomingCourses = courses.filter(c => c.status === 'upcoming').length;
-  const completedCourses = courses.filter(c => c.status === 'completed').length;
+  const completedCourses = courses.filter(c => c.status === 'ended').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">

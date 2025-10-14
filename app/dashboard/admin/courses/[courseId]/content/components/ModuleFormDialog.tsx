@@ -94,7 +94,7 @@ export function ModuleFormDialog({ isOpen, onClose, mode, courseId, module, maxO
       }
 
       if (result && 'error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error al guardar el módulo');
       } else {
         onClose();
         router.refresh();
@@ -234,4 +234,3 @@ export function ModuleFormDialog({ isOpen, onClose, mode, courseId, module, maxO
     </Dialog>
   );
 }
-

@@ -40,7 +40,7 @@ export function DeleteLessonDialog({ isOpen, onClose, lesson }: DeleteLessonDial
       const result = await deleteLesson(lesson.id);
 
       if ('error' in result) {
-        setError(result.error);
+        setError(result.error || 'Error al eliminar la lección');
       } else {
         onClose();
         router.refresh();

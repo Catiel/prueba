@@ -74,7 +74,7 @@ export async function deleteUser(userId: string) {
     }
 
     // Prevent self-deletion
-    if (profileResult.profile.userId === userId) {
+    if (profileResult.profile.id === userId) {
       return { error: 'No puedes eliminar tu propia cuenta' };
     }
 
@@ -155,4 +155,3 @@ export async function sendPasswordResetEmail(userId: string) {
     return { error: error instanceof Error ? error.message : 'Error al enviar email' };
   }
 }
-
