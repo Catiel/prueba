@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,8 +14,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
+import { lessonSchema, type LessonInput } from "@/lib/validations";
 import { createLesson, updateLesson } from "@/src/presentation/actions/content.actions";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface LessonData {
   id: string;
@@ -35,41 +41,53 @@ interface LessonFormDialogProps {
 
 export function LessonFormDialog({ isOpen, onClose, mode, moduleId, lesson, maxOrderIndex }: LessonFormDialogProps) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    order_index: 1,
-    duration_minutes: 0,
-    is_published: false,
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+  } = useForm<LessonInput>({
+    resolver: zodResolver(lessonSchema),
+    defaultValues: {
+      title: '',
+      content: '',
+      orderIndex: maxOrderIndex + 1,
+      durationMinutes: 0,
+      isPublished: false,
+    },
   });
 
-  useEffect(() => {
-    if (mode === 'edit' && lesson) {
-      setFormData({
-        title: lesson.title,
-        content: lesson.content || '',
-        order_index: lesson.orderIndex,
-        duration_minutes: lesson.durationMinutes || 0,
-        is_published: lesson.isPublished,
-      });
-    } else {
-      setFormData({
-        title: '',
-        content: '',
-        order_index: maxOrderIndex + 1,
-        duration_minutes: 0,
-        is_published: false,
-      });
-    }
-    setError(null);
-  }, [mode, lesson, maxOrderIndex, isOpen]);
+  const isPublished = watch('isPublished');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  useEffect(() => {
+    if (isOpen) {
+      if (mode === 'edit' && lesson) {
+        reset({
+          title: lesson.title,
+          content: lesson.content || '',
+          orderIndex: lesson.orderIndex,
+          durationMinutes: lesson.durationMinutes || 0,
+          isPublished: lesson.isPublished,
+        });
+      } else {
+        reset({
+          title: '',
+          content: '',
+          orderIndex: maxOrderIndex + 1,
+          durationMinutes: 0,
+          isPublished: false,
+        });
+      }
+      setError(null);
+    }
+  }, [isOpen, mode, lesson, maxOrderIndex, reset]);
+
+  const onSubmit = async (data: LessonInput) => {
+    setIsSubmitting(true);
     setError(null);
 
     try {
@@ -77,24 +95,24 @@ export function LessonFormDialog({ isOpen, onClose, mode, moduleId, lesson, maxO
       if (mode === 'create') {
         result = await createLesson({
           module_id: moduleId,
-          title: formData.title,
-          content: formData.content || null,
-          order_index: formData.order_index,
-          duration_minutes: formData.duration_minutes || null,
-          is_published: formData.is_published,
+          title: data.title,
+          content: data.content || null,
+          order_index: data.orderIndex,
+          duration_minutes: data.durationMinutes || null,
+          is_published: data.isPublished || false,
         });
       } else if (lesson) {
         result = await updateLesson(lesson.id, {
-          title: formData.title,
-          content: formData.content || null,
-          order_index: formData.order_index,
-          duration_minutes: formData.duration_minutes || null,
-          is_published: formData.is_published,
+          title: data.title,
+          content: data.content || null,
+          order_index: data.orderIndex,
+          duration_minutes: data.durationMinutes || null,
+          is_published: data.isPublished || false,
         });
       }
 
       if (result && 'error' in result) {
-        setError(result.error || 'Error al guardar la lección');
+        setError(result.error);
       } else {
         onClose();
         router.refresh();
@@ -102,22 +120,12 @@ export function LessonFormDialog({ isOpen, onClose, mode, moduleId, lesson, maxO
     } catch (err) {
       setError('Error inesperado al guardar la lección');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-    
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'number' ? parseInt(value) || 0 : value
-    }));
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isSubmitting && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -125,106 +133,115 @@ export function LessonFormDialog({ isOpen, onClose, mode, moduleId, lesson, maxO
           </DialogTitle>
           <DialogDescription>
             {mode === 'create'
-              ? 'Completa la información de la nueva lección.'
+              ? 'Completa la información de la nueva lección del módulo.'
               : 'Modifica la información de la lección.'}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Título de la Lección *</Label>
-              <Input
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Ej: Variables y Tipos de Datos"
-                required
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="order_index">Orden *</Label>
-                <Input
-                  id="order_index"
-                  name="order_index"
-                  type="number"
-                  min="1"
-                  value={formData.order_index}
-                  onChange={handleChange}
-                  required
-                  disabled={isLoading}
-                />
-                <p className="text-xs text-slate-500">
-                  Puedes usar cualquier número.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="duration_minutes">Duración (minutos)</Label>
-                <Input
-                  id="duration_minutes"
-                  name="duration_minutes"
-                  type="number"
-                  min="0"
-                  value={formData.duration_minutes}
-                  onChange={handleChange}
-                  placeholder="Ej: 15"
-                  disabled={isLoading}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="content">Contenido de la Lección</Label>
-              <textarea
-                id="content"
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                placeholder="Contenido de la lección en formato Markdown..."
-                disabled={isLoading}
-                className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="is_published"
-                name="is_published"
-                checked={formData.is_published}
-                onChange={handleChange}
-                disabled={isLoading}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-              <Label htmlFor="is_published" className="cursor-pointer">
-                Publicar lección (visible para estudiantes)
-              </Label>
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title">
+              Título de la Lección <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="title"
+              placeholder="Ej: Introducción a variables"
+              {...register('title')}
+              error={errors.title?.message}
+              disabled={isSubmitting}
+            />
           </div>
 
+          {/* Content */}
+          <div className="space-y-2">
+            <Label htmlFor="content">Contenido</Label>
+            <Textarea
+              id="content"
+              placeholder="Contenido de la lección en formato Markdown..."
+              {...register('content')}
+              error={errors.content?.message}
+              disabled={isSubmitting}
+              rows={12}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-slate-500">
+              Puedes usar Markdown para dar formato al contenido
+            </p>
+          </div>
+
+          {/* Order Index */}
+          <div className="space-y-2">
+            <Label htmlFor="orderIndex">
+              Orden <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="orderIndex"
+              type="number"
+              placeholder="1"
+              {...register('orderIndex', { valueAsNumber: true })}
+              error={errors.orderIndex?.message}
+              disabled={isSubmitting}
+            />
+            <p className="text-xs text-slate-500">
+              Las lecciones se reorganizarán automáticamente si hay conflictos de orden.
+            </p>
+          </div>
+
+          {/* Duration */}
+          <div className="space-y-2">
+            <Label htmlFor="durationMinutes">Duración (minutos)</Label>
+            <Input
+              id="durationMinutes"
+              type="number"
+              placeholder="30"
+              {...register('durationMinutes', { valueAsNumber: true })}
+              error={errors.durationMinutes?.message}
+              disabled={isSubmitting}
+            />
+            <p className="text-xs text-slate-500">
+              Duración estimada de la lección (opcional, máximo 480 minutos)
+            </p>
+          </div>
+
+          {/* Published */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isPublished"
+              {...register('isPublished')}
+              disabled={isSubmitting}
+              className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+            <Label htmlFor="isPublished" className="cursor-pointer font-normal">
+              Publicar lección (visible para estudiantes)
+            </Label>
+          </div>
+
+          {/* Error Message */}
           {error && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
               {error}
             </div>
           )}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading} 
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-purple-600 hover:bg-purple-700"
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <>
-                  <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Guardando...
                 </>
               ) : (

@@ -11,21 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Users, GraduationCap, UserPlus, UserMinus, Mail, Calendar, Trash2, KeyRound, Loader2 } from "lucide-react";
+import { Users, GraduationCap, UserPlus, UserMinus, Calendar, Trash2, KeyRound, Loader2, Mail } from "lucide-react";
 import Image from "next/image";
 import { promoteToTeacher, demoteToStudent } from "@/src/presentation/actions/profile.actions";
-import { createUser, deleteUser, sendPasswordResetEmail } from "@/src/presentation/actions/user-management.actions";
+import { deleteUser, sendPasswordResetEmail } from "@/src/presentation/actions/user-management.actions";
 import { useRouter } from "next/navigation";
+import { CreateUserDialog } from "./CreateUserDialog";
 
 interface UserData {
   id: string;
@@ -45,30 +37,11 @@ interface UserManagementClientProps {
 export function UserManagementClient({ students, teachers }: UserManagementClientProps) {
   const router = useRouter();
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [action, setAction] = useState<'promote' | 'demote' | 'delete' | 'reset-password' | 'create' | null>(null);
+  const [action, setAction] = useState<'promote' | 'demote' | 'delete' | 'reset-password' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  // Form state for creating user
-  const [newUserForm, setNewUserForm] = useState({
-    email: '',
-    password: '',
-    fullName: '',
-    role: 'student' as 'student' | 'teacher' | 'admin',
-  });
-
-  const handleCreateUserClick = () => {
-    setAction('create');
-    setError(null);
-    setSuccess(null);
-    setNewUserForm({
-      email: '',
-      password: '',
-      fullName: '',
-      role: 'student',
-    });
-  };
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const handlePromoteClick = (user: UserData) => {
     setSelectedUser(user);
@@ -99,7 +72,7 @@ export function UserManagementClient({ students, teachers }: UserManagementClien
   };
 
   const handleConfirm = async () => {
-    if (!action) return;
+    if (!action || !selectedUser) return;
 
     setIsLoading(true);
     setError(null);
@@ -108,40 +81,24 @@ export function UserManagementClient({ students, teachers }: UserManagementClien
     try {
       let result;
 
-      if (action === 'create') {
-        // Validate form
-        if (!newUserForm.email || !newUserForm.password || !newUserForm.fullName) {
-          setError('Todos los campos son obligatorios');
-          setIsLoading(false);
-          return;
-        }
-
-        if (newUserForm.password.length < 6) {
-          setError('La contraseña debe tener al menos 6 caracteres');
-          setIsLoading(false);
-          return;
-        }
-
-        result = await createUser(newUserForm);
-      } else if (action === 'promote' && selectedUser) {
+      if (action === 'promote') {
         result = await promoteToTeacher(selectedUser.id);
-      } else if (action === 'demote' && selectedUser) {
+      } else if (action === 'demote') {
         result = await demoteToStudent(selectedUser.id);
-      } else if (action === 'delete' && selectedUser) {
+      } else if (action === 'delete') {
         result = await deleteUser(selectedUser.id);
-      } else if (action === 'reset-password' && selectedUser) {
+      } else if (action === 'reset-password') {
         result = await sendPasswordResetEmail(selectedUser.id);
       }
 
       if (result && 'error' in result) {
-        setError(result.error || 'Error en la operación');
+        setError(result.error);
       } else {
         // Success
         if (result && 'message' in result) {
-          setSuccess(typeof result.message === 'string' ? result.message : 'Operación completada');
+          setSuccess(result.message);
         } else {
           setSuccess(
-            action === 'create' ? 'Usuario creado exitosamente' :
             action === 'promote' ? 'Usuario promovido a docente' :
             action === 'demote' ? 'Usuario degradado a estudiante' :
             action === 'delete' ? 'Usuario eliminado exitosamente' :
@@ -180,13 +137,14 @@ export function UserManagementClient({ students, teachers }: UserManagementClien
     });
   };
 
-  const allUsers = [...students, ...teachers];
-
   return (
     <>
       {/* Create User Button */}
       <div className="mb-6">
-        <Button onClick={handleCreateUserClick} className="bg-purple-600 hover:bg-purple-700">
+        <Button 
+          onClick={() => setIsCreateDialogOpen(true)} 
+          className="bg-purple-600 hover:bg-purple-700"
+        >
           <UserPlus className="mr-2 h-4 w-4" />
           Crear Nuevo Usuario
         </Button>
@@ -359,104 +317,10 @@ export function UserManagementClient({ students, teachers }: UserManagementClien
       </div>
 
       {/* Create User Dialog */}
-      <Dialog open={action === 'create'} onOpenChange={handleCancel}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Crear Nuevo Usuario</DialogTitle>
-            <DialogDescription>
-              Ingresa los datos del nuevo usuario y selecciona su rol
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="fullName">Nombre Completo</Label>
-              <Input
-                id="fullName"
-                value={newUserForm.fullName}
-                onChange={(e) => setNewUserForm({ ...newUserForm, fullName: e.target.value })}
-                placeholder="Juan Pérez"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={newUserForm.email}
-                onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
-                placeholder="usuario@ejemplo.com"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={newUserForm.password}
-                onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
-                placeholder="Mínimo 6 caracteres"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="role">Rol</Label>
-              <Select
-                value={newUserForm.role}
-                onValueChange={(value: 'student' | 'teacher' | 'admin') =>
-                  setNewUserForm({ ...newUserForm, role: value })
-                }
-                disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="student">Estudiante</SelectItem>
-                  <SelectItem value="teacher">Docente</SelectItem>
-                  <SelectItem value="admin">Administrador</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-                {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                {success}
-              </div>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
-              Cancelar
-            </Button>
-            <Button onClick={handleConfirm} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creando...
-                </>
-              ) : (
-                <>
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Crear Usuario
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CreateUserDialog 
+        open={isCreateDialogOpen} 
+        onOpenChange={setIsCreateDialogOpen}
+      />
 
       {/* Promote/Demote Confirmation Dialog */}
       <Dialog open={action === 'promote' || action === 'demote'} onOpenChange={handleCancel}>

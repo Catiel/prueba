@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/src/presentation/actions/profile.actions";
 import { getAllCourses } from "@/src/presentation/actions/course.actions";
+import { getCourseWithModulesAndLessons } from "@/src/presentation/actions/student.actions";
 import { signout } from "@/src/presentation/actions/auth.actions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, BookOpen, Clock, CheckCircle2, Calendar, XCircle } from "lucide-react";
+import { LogOut, BookOpen, Clock, CheckCircle2, Calendar, PlayCircle, FileText, Trophy, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -26,10 +27,43 @@ export default async function StudentDashboardPage() {
   const coursesResult = await getAllCourses();
   const allCourses = 'error' in coursesResult ? [] : coursesResult.courses || [];
 
-  // Filtrar cursos activos y próximos (los estudiantes ven estos)
+  // Filtrar cursos activos
   const activeCourses = allCourses.filter(c => c.status === 'active');
   const upcomingCourses = allCourses.filter(c => c.status === 'upcoming');
-  const visibleCourses = [...activeCourses, ...upcomingCourses];
+
+  // Obtener datos completos del primer curso activo
+  let courseData: any = null;
+  let totalLessons = 0;
+  let completedLessons = 0;
+  
+  if (activeCourses.length > 0) {
+    const result = await getCourseWithModulesAndLessons(activeCourses[0].id);
+    if (!('error' in result)) {
+      courseData = result;
+      
+      // Calcular totales de forma segura
+      if (courseData.modules && Array.isArray(courseData.modules)) {
+        courseData.modules.forEach((module: any) => {
+          if (module.lessons && Array.isArray(module.lessons)) {
+            totalLessons += module.lessons.length;
+            module.lessons.forEach((lesson: any) => {
+              if (courseData.progress && Array.isArray(courseData.progress)) {
+                const isCompleted = courseData.progress.some(
+                  (p: any) => p.lesson_id === lesson.id && p.completed
+                );
+                if (isCompleted) completedLessons++;
+              }
+            });
+          }
+        });
+      }
+    } else {
+      console.error('Error loading course data:', result.error);
+    }
+  }
+
+  const progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const publishedModules = (courseData?.modules && Array.isArray(courseData.modules)) ? courseData.modules.length : 0;
 
   function formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -103,190 +137,297 @@ export default async function StudentDashboardPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
-        {/* Header Section */}
+        {/* Welcome Section */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="mb-2 text-balance text-2xl font-bold text-slate-800 sm:mb-3 sm:text-3xl md:text-4xl">
-            Mi Panel de Estudiante
+          <h1 className="mb-1 text-balance text-2xl font-bold text-slate-800 sm:mb-2 sm:text-3xl md:text-4xl lg:text-5xl">
+            ¡Bienvenido, {profile.displayName}! 👋
           </h1>
-          <p className="text-pretty text-sm text-slate-600 sm:text-base">
-            Bienvenido, {profile.displayName}. Accede a tus cursos y continúa aprendiendo
+          <p className="text-pretty text-sm text-slate-600 sm:text-base md:text-lg lg:text-xl">
+            Continúa tu viaje de aprendizaje
           </p>
         </div>
 
         {/* Quick Stats */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 lg:grid-cols-3">
-          <Card className="border-2">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                <BookOpen className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
-                Cursos Disponibles
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-blue-600 sm:text-3xl">{visibleCourses.length}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                <CheckCircle2 className="h-4 w-4 text-green-600 sm:h-5 sm:w-5" />
-                Activos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-green-600 sm:text-3xl">{activeCourses.length}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                <Clock className="h-4 w-4 text-orange-600 sm:h-5 sm:w-5" />
-                Próximos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-orange-600 sm:text-3xl">{upcomingCourses.length}</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Courses List */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="mb-4 text-xl font-bold text-slate-800 sm:text-2xl">
-            Cursos Disponibles
-          </h2>
-
-          {visibleCourses.length === 0 ? (
-            <Card className="border-2">
-              <CardContent className="p-8 text-center">
-                <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-8">
-                  <BookOpen className="mx-auto mb-3 h-12 w-12 text-slate-400" />
-                  <h3 className="mb-2 text-lg font-semibold text-slate-800">
-                    No hay cursos disponibles actualmente
-                  </h3>
-                  <p className="text-sm text-slate-600">
-                    Los cursos aparecerán aquí cuando el administrador los active
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-4 lg:grid-cols-4">
+          <Card className="border-2 transition-shadow hover:shadow-lg">
+            <CardContent className="p-3 pt-4 sm:p-6 sm:pt-6">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs text-slate-600 sm:text-sm">
+                    Cursos Activos
+                  </p>
+                  <p className="text-xl font-bold text-slate-800 sm:text-2xl md:text-3xl">
+                    {activeCourses.length}
                   </p>
                 </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {visibleCourses.map((course) => (
-                <Card key={course.id} className="border-2 transition-shadow hover:shadow-lg">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <CardTitle className="mb-2 text-xl">{course.title}</CardTitle>
-                        {course.status === 'active' ? (
-                          <Badge className="bg-green-100 text-green-700">
-                            <CheckCircle2 className="mr-1 h-3 w-3" />
-                            Activo - Disponible Ahora
-                          </Badge>
-                        ) : course.status === 'upcoming' ? (
-                          <Badge className="bg-orange-100 text-orange-700">
-                            <Clock className="mr-1 h-3 w-3" />
-                            Próximamente
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-slate-300 text-slate-600">
-                            <XCircle className="mr-1 h-3 w-3" />
-                            Finalizado
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="mb-4 text-sm text-slate-600">{course.description}</p>
-                    
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="flex items-start gap-2 rounded-lg border bg-slate-50 p-3">
-                        <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-                        <div>
-                          <p className="text-xs text-slate-600">Inicio</p>
-                          <p className="text-sm font-semibold text-slate-800">
-                            {formatDate(course.startDate)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2 rounded-lg border bg-slate-50 p-3">
-                        <Calendar className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-                        <div>
-                          <p className="text-xs text-slate-600">Fin</p>
-                          <p className="text-sm font-semibold text-slate-800">
-                            {formatDate(course.endDate)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {course.status === 'active' && course.daysRemaining > 0 && (
-                      <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-                        <strong>⏳ {course.daysRemaining} días restantes</strong> para completar
-                      </div>
-                    )}
-
-                    {course.status === 'upcoming' && (() => {
-                      const startDate = new Date(course.startDate);
-                      const today = new Date();
-                      const daysUntilStart = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                      return daysUntilStart > 0;
-                    })() && (
-                      <div className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800">
-                        <strong>⏰ Comienza en {(() => {
-                          const startDate = new Date(course.startDate);
-                          const today = new Date();
-                          return Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                        })()} días</strong>
-                      </div>
-                    )}
-
-                    <div className="mt-4">
-                      {course.status === 'active' ? (
-                        <Link href={`/courses/${course.id}`} className="block">
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            Ir al Curso
-                          </Button>
-                        </Link>
-                      ) : (
-                        <Button className="w-full" variant="outline" disabled>
-                          <Clock className="mr-2 h-4 w-4" />
-                          Próximamente
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Info Card */}
-        {visibleCourses.length > 0 && (
-          <Card className="border-2 border-blue-200 bg-blue-50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="mb-1 text-sm font-semibold text-blue-900">
-                    Acceso a Cursos
-                  </h4>
-                  <p className="text-xs text-blue-700">
-                    Puedes acceder a todos los cursos activos y ver el contenido publicado por tus docentes.
-                    Los cursos próximos estarán disponibles en sus fechas de inicio correspondientes.
-                  </p>
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 sm:h-12 sm:w-12">
+                  <BookOpen className="h-5 w-5 text-blue-600 sm:h-6 sm:w-6" />
                 </div>
               </div>
             </CardContent>
           </Card>
-        )}
+
+          <Card className="border-2 transition-shadow hover:shadow-lg">
+            <CardContent className="p-3 pt-4 sm:p-6 sm:pt-6">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs text-slate-600 sm:text-sm">
+                    Módulos
+                  </p>
+                  <p className="text-xl font-bold text-slate-800 sm:text-2xl md:text-3xl">
+                    {publishedModules}
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-green-100 sm:h-12 sm:w-12">
+                  <FileText className="h-5 w-5 text-green-600 sm:h-6 sm:w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 transition-shadow hover:shadow-lg">
+            <CardContent className="p-3 pt-4 sm:p-6 sm:pt-6">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs text-slate-600 sm:text-sm">
+                    Completadas
+                  </p>
+                  <p className="text-xl font-bold text-slate-800 sm:text-2xl md:text-3xl">
+                    {completedLessons}/{totalLessons}
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-100 sm:h-12 sm:w-12">
+                  <Trophy className="h-5 w-5 text-yellow-600 sm:h-6 sm:w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 transition-shadow hover:shadow-lg">
+            <CardContent className="p-3 pt-4 sm:p-6 sm:pt-6">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="mb-1 text-xs text-slate-600 sm:text-sm">
+                    Progreso
+                  </p>
+                  <p className="truncate text-xl font-bold text-slate-800 sm:text-2xl md:text-3xl">
+                    {progressPercentage}%
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 sm:h-12 sm:w-12">
+                  <TrendingUp className="h-5 w-5 text-purple-600 sm:h-6 sm:w-6" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+          {/* Course Content */}
+          <div className="space-y-4 sm:space-y-6 lg:col-span-2">
+            {activeCourses.length === 0 ? (
+              <Card className="border-2">
+                <CardContent className="py-12 text-center">
+                  <BookOpen className="mx-auto mb-4 h-16 w-16 text-slate-300" />
+                  <h3 className="mb-2 text-xl font-semibold text-slate-800">
+                    No hay cursos activos
+                  </h3>
+                  <p className="text-slate-600">
+                    Los cursos aparecerán aquí cuando estén disponibles
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* Current Course */}
+                <Card className="border-2">
+                  <CardHeader className="p-4 sm:p-6">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-lg sm:text-xl md:text-2xl">
+                          {activeCourses[0].title}
+                        </CardTitle>
+                        <CardDescription className="mt-2">
+                          {activeCourses[0].description}
+                        </CardDescription>
+                      </div>
+                      <Badge className="ml-2 bg-green-600">Activo</Badge>
+                    </div>
+                    <div className="mt-4 flex items-center gap-4 text-sm text-slate-600">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>
+                          {formatDate(activeCourses[0].startDate)} - {formatDate(activeCourses[0].endDate)}
+                        </span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+
+                {/* Modules & Lessons */}
+                {courseData && courseData.modules && Array.isArray(courseData.modules) && courseData.modules.length > 0 ? (
+                  <div className="space-y-4">
+                    {courseData.modules.map((module: any, moduleIndex: number) => (
+                      <Card key={module.id} className="border-2">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <CardTitle className="text-base sm:text-lg">
+                                Módulo {module.order_index}: {module.title}
+                              </CardTitle>
+                              {module.description && (
+                                <CardDescription className="mt-1">
+                                  {module.description}
+                                </CardDescription>
+                              )}
+                            </div>
+                            {module.is_published && (
+                              <Badge variant="outline" className="ml-2">
+                                {(module.lessons && Array.isArray(module.lessons)) ? module.lessons.length : 0} lecciones
+                              </Badge>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {module.lessons && Array.isArray(module.lessons) && module.lessons.length > 0 ? (
+                            <div className="space-y-2">
+                              {module.lessons.map((lesson: any) => {
+                                const isCompleted = courseData.progress && Array.isArray(courseData.progress) && courseData.progress.some(
+                                  (p: any) => p.lesson_id === lesson.id && p.completed
+                                );
+
+                                return (
+                                  <Link
+                                    key={lesson.id}
+                                    href={`/courses/${activeCourses[0].id}/modules/${module.id}/lessons/${lesson.id}`}
+                                    className="block"
+                                  >
+                                    <div className="flex items-center justify-between rounded-lg border bg-white p-3 transition-all hover:border-blue-300 hover:shadow-md">
+                                      <div className="flex items-center gap-3">
+                                        <div
+                                          className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                                            isCompleted
+                                              ? 'bg-green-100 text-green-600'
+                                              : 'bg-slate-100 text-slate-400'
+                                          }`}
+                                        >
+                                          {isCompleted ? (
+                                            <CheckCircle2 className="h-5 w-5" />
+                                          ) : (
+                                            <PlayCircle className="h-5 w-5" />
+                                          )}
+                                        </div>
+                                        <div>
+                                          <p className="font-medium text-slate-800">
+                                            {lesson.title}
+                                          </p>
+                                          {lesson.duration_minutes && (
+                                            <div className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                                              <Clock className="h-3 w-3" />
+                                              <span>{lesson.duration_minutes} min</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      {isCompleted && (
+                                        <Badge className="bg-green-600">Completado</Badge>
+                                      )}
+                                    </div>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="py-4 text-center text-sm text-slate-500">
+                              No hay lecciones publicadas aún
+                            </p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="border-2">
+                    <CardContent className="py-8 text-center">
+                      <FileText className="mx-auto mb-3 h-12 w-12 text-slate-300" />
+                      <p className="text-sm text-slate-600">
+                        El contenido del curso estará disponible pronto
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Progress Card */}
+            <Card className="border-2">
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">
+                  Tu Progreso
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6">
+                <div className="space-y-4">
+                  <div>
+                    <div className="mb-2 flex justify-between text-xs sm:text-sm">
+                      <span className="text-slate-600">Curso completo</span>
+                      <span className="font-semibold">{progressPercentage}%</span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-slate-200">
+                      <div
+                        className="h-2 rounded-full bg-blue-600 transition-all"
+                        style={{ width: `${progressPercentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+                    <div className="flex items-center gap-2 text-sm text-blue-800">
+                      <Trophy className="h-4 w-4" />
+                      <span>
+                        <strong>{completedLessons}</strong> de <strong>{totalLessons}</strong> lecciones completadas
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Courses */}
+            {upcomingCourses.length > 0 && (
+              <Card className="border-2">
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">
+                    Próximos Cursos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 p-4 sm:p-6">
+                  {upcomingCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="rounded-lg border bg-white p-3"
+                    >
+                      <p className="mb-1 font-medium text-slate-800">{course.title}</p>
+                      <div className="flex items-center gap-1 text-xs text-slate-500">
+                        <Calendar className="h-3 w-3" />
+                        <span>Inicia el {formatDate(course.startDate)}</span>
+                      </div>
+                      {course.daysUntilStart > 0 && (
+                        <Badge className="mt-2 bg-orange-600" size="sm">
+                          En {course.daysUntilStart} días
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
