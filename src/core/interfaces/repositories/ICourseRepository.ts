@@ -11,4 +11,5 @@ export interface ICourseRepository {
   assignTeacher(courseId: string, teacherId: string): Promise<void>;
   removeTeacher(courseId: string, teacherId: string): Promise<void>;
   getCourseTeachers(courseId: string): Promise<string[]>;
+  getTeacherCourses(teacherId: string): Promise<CourseEntity[]>;
 }

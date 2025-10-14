@@ -147,4 +147,48 @@ export class SupabaseCourseRepository implements ICourseRepository {
 
     return data.map(ct => ct.teacher_id);
   }
+
+  async getTeacherCourses(teacherId: string): Promise<CourseEntity[]> {
+    const supabase = createClient();
+
+    // Get course IDs where teacher is assigned
+    const { data: courseTeachersData, error: ctError } = await supabase
+      .from('course_teachers')
+      .select('course_id')
+      .eq('teacher_id', teacherId);
+
+    if (ctError) {
+      throw new Error('Error al obtener cursos del docente');
+    }
+
+    if (!courseTeachersData || courseTeachersData.length === 0) {
+      return [];
+    }
+
+    const courseIds = courseTeachersData.map(item => item.course_id);
+
+    // Get courses
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .in('id', courseIds)
+      .order('start_date', { ascending: false });
+
+    if (error) {
+      throw new Error('Error al obtener cursos');
+    }
+
+    if (!data) return [];
+
+    return data.map((courseData: CourseData) => new CourseEntity({
+      id: courseData.id,
+      title: courseData.title,
+      description: courseData.description,
+      startDate: courseData.start_date,
+      endDate: courseData.end_date,
+      isActive: courseData.is_active,
+      createdAt: courseData.created_at,
+      updatedAt: courseData.updated_at,
+    }));
+  }
 }

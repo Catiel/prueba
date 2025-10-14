@@ -117,4 +117,34 @@ export class SupabaseProfileRepository implements IProfileRepository {
 
     return data.map(profile => ProfileEntity.fromDatabase(profile));
   }
+
+  async getProfileByEmail(email: string): Promise<ProfileEntity | null> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return ProfileEntity.fromDatabase(data);
+  }
+
+  async getAllProfiles(): Promise<ProfileEntity[]> {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*');
+
+    if (error || !data) {
+      return [];
+    }
+
+    return data.map(profile => ProfileEntity.fromDatabase(profile));
+  }
 }
