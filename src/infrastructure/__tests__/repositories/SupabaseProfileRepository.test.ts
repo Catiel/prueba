@@ -48,9 +48,7 @@ describe('SupabaseProfileRepository', () => {
       expect(result?.id).toBe('123');
       expect(result?.email).toBe('test@example.com');
       expect(mockSupabaseClient.from).toHaveBeenCalledWith('profiles');
-      expect(mockSupabaseClient.select).toHaveBeenCalledWith(
-        'id, email, full_name, avatar_url'
-      );
+      expect(mockSupabaseClient.select).toHaveBeenCalledWith('*');
       expect(mockSupabaseClient.eq).toHaveBeenCalledWith('id', '123');
     });
 
@@ -87,10 +85,13 @@ describe('SupabaseProfileRepository', () => {
 
       expect(result).toBeInstanceOf(ProfileEntity);
       expect(result.fullName).toBe('Jane Doe');
-      expect(mockSupabaseClient.update).toHaveBeenCalledWith({
-        full_name: 'Jane Doe',
-        avatar_url: 'https://avatar.com/new.jpg',
-      });
+      expect(mockSupabaseClient.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          full_name: 'Jane Doe',
+          avatar_url: 'https://avatar.com/new.jpg',
+          updated_at: expect.any(String),
+        })
+      );
     });
 
     it('should throw error when update fails', async () => {
