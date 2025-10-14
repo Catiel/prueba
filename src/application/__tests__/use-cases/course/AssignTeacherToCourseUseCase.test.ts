@@ -19,11 +19,11 @@ describe('AssignTeacherToCourseUseCase', () => {
       getCourseById: jest.fn(),
       updateCourse: jest.fn(),
       deleteCourse: jest.fn(),
-      assignTeacherToCourse: jest.fn(),
-      removeTeacherFromCourse: jest.fn(),
-      getCourseWithTeachers: jest.fn(),
-      getTeacherCourses: jest.fn(),
+      assignTeacher: jest.fn(),
+      removeTeacher: jest.fn(),
       getCourseTeachers: jest.fn(),
+      getTeacherCourses: jest.fn(),
+      getActiveCourse: jest.fn(),
     } as any;
 
     mockAuthRepository = {
@@ -38,11 +38,12 @@ describe('AssignTeacherToCourseUseCase', () => {
 
     mockProfileRepository = {
       getProfileByUserId: jest.fn(),
+      getProfileByEmail: jest.fn(),
       getAllStudents: jest.fn(),
       getAllTeachers: jest.fn(),
-      updateUserRole: jest.fn(),
-      createProfile: jest.fn(),
-      deleteProfile: jest.fn(),
+      getAllProfiles: jest.fn(),
+      updateProfile: jest.fn(),
+      updateRole: jest.fn(),
       promoteToTeacher: jest.fn(),
       demoteToStudent: jest.fn(),
     } as any;
@@ -61,19 +62,19 @@ describe('AssignTeacherToCourseUseCase', () => {
   describe('execute', () => {
     const mockUser = new UserEntity('admin-123', 'admin@example.com', 'Admin User');
     const mockAdminProfile = new ProfileEntity(
-      'profile-admin',
       'admin-123',
-      'Admin',
-      'User',
+      'admin@example.com',
+      'Admin User',
+      null,
       'admin',
       new Date(),
       new Date()
     );
     const mockTeacherProfile = new ProfileEntity(
-      'profile-teacher',
       'teacher-123',
-      'Teacher',
-      'User',
+      'teacher@example.com',
+      'Teacher User',
+      null,
       'teacher',
       new Date(),
       new Date()
@@ -85,6 +86,7 @@ describe('AssignTeacherToCourseUseCase', () => {
       new Date(),
       new Date(),
       true,
+      'admin-123',
       new Date(),
       new Date()
     );
@@ -95,12 +97,13 @@ describe('AssignTeacherToCourseUseCase', () => {
         .mockResolvedValueOnce(mockAdminProfile)
         .mockResolvedValueOnce(mockTeacherProfile);
       mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
-      mockCourseRepository.assignTeacherToCourse.mockResolvedValue(undefined);
+      mockCourseRepository.getCourseTeachers.mockResolvedValue([]);
+      mockCourseRepository.assignTeacher.mockResolvedValue(undefined);
 
       const result = await assignTeacherToCourseUseCase.execute('course-123', 'teacher-123');
 
       expect(result.success).toBe(true);
-      expect(mockCourseRepository.assignTeacherToCourse).toHaveBeenCalledWith('course-123', 'teacher-123');
+      expect(mockCourseRepository.assignTeacher).toHaveBeenCalledWith('course-123', 'teacher-123');
     });
 
     it('should return error when no user is authenticated', async () => {
@@ -114,10 +117,10 @@ describe('AssignTeacherToCourseUseCase', () => {
 
     it('should return error when user is not admin', async () => {
       const teacherProfile = new ProfileEntity(
-        'profile-123',
         'user-123',
-        'Teacher',
+        'user@example.com',
         'User',
+        null,
         'teacher',
         new Date(),
         new Date()
@@ -141,15 +144,15 @@ describe('AssignTeacherToCourseUseCase', () => {
       const result = await assignTeacherToCourseUseCase.execute('course-123', 'teacher-123');
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('El usuario no es un docente');
+      expect(result.error).toBe('Perfil de docente no encontrado');
     });
 
     it('should return error when user is not a teacher', async () => {
       const studentProfile = new ProfileEntity(
-        'profile-student',
         'student-123',
-        'Student',
-        'User',
+        'student@example.com',
+        'Student User',
+        null,
         'student',
         new Date(),
         new Date()
@@ -179,13 +182,28 @@ describe('AssignTeacherToCourseUseCase', () => {
       expect(result.error).toBe('Curso no encontrado');
     });
 
+    it('should return error when teacher is already assigned', async () => {
+      mockAuthRepository.getCurrentUser.mockResolvedValue(mockUser);
+      mockProfileRepository.getProfileByUserId
+        .mockResolvedValueOnce(mockAdminProfile)
+        .mockResolvedValueOnce(mockTeacherProfile);
+      mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
+      mockCourseRepository.getCourseTeachers.mockResolvedValue(['teacher-123']);
+
+      const result = await assignTeacherToCourseUseCase.execute('course-123', 'teacher-123');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('El docente ya está asignado a este curso');
+    });
+
     it('should handle repository errors gracefully', async () => {
       mockAuthRepository.getCurrentUser.mockResolvedValue(mockUser);
       mockProfileRepository.getProfileByUserId
         .mockResolvedValueOnce(mockAdminProfile)
         .mockResolvedValueOnce(mockTeacherProfile);
       mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
-      mockCourseRepository.assignTeacherToCourse.mockRejectedValue(
+      mockCourseRepository.getCourseTeachers.mockResolvedValue([]);
+      mockCourseRepository.assignTeacher.mockRejectedValue(
         new Error('Database error')
       );
 
@@ -193,6 +211,21 @@ describe('AssignTeacherToCourseUseCase', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Database error');
+    });
+
+    it('should handle unknown errors', async () => {
+      mockAuthRepository.getCurrentUser.mockResolvedValue(mockUser);
+      mockProfileRepository.getProfileByUserId
+        .mockResolvedValueOnce(mockAdminProfile)
+        .mockResolvedValueOnce(mockTeacherProfile);
+      mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
+      mockCourseRepository.getCourseTeachers.mockResolvedValue([]);
+      mockCourseRepository.assignTeacher.mockRejectedValue('Unknown error');
+
+      const result = await assignTeacherToCourseUseCase.execute('course-123', 'teacher-123');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Error al asignar docente');
     });
   });
 });

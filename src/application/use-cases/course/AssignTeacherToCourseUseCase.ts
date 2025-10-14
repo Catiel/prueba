@@ -35,7 +35,14 @@ export class AssignTeacherToCourseUseCase {
 
       // Verify the user is actually a teacher
       const teacherProfile = await this.profileRepository.getProfileByUserId(teacherId);
-      if (!teacherProfile || !teacherProfile.isTeacher()) {
+      if (!teacherProfile) {
+        return {
+          success: false,
+          error: 'Perfil de docente no encontrado',
+        };
+      }
+
+      if (!teacherProfile.isTeacher()) {
         return {
           success: false,
           error: 'El usuario no es un docente',
@@ -53,7 +60,7 @@ export class AssignTeacherToCourseUseCase {
 
       // Check if already assigned
       const assignedTeachers = await this.courseRepository.getCourseTeachers(courseId);
-      if (assignedTeachers.includes(teacherId)) {
+      if (assignedTeachers && assignedTeachers.includes(teacherId)) {
         return {
           success: false,
           error: 'El docente ya está asignado a este curso',

@@ -20,10 +20,12 @@ describe('UpdateCourseUseCase', () => {
       getCourseById: jest.fn(),
       updateCourse: jest.fn(),
       deleteCourse: jest.fn(),
-      assignTeacherToCourse: jest.fn(),
-      removeTeacherFromCourse: jest.fn(),
+      assignTeacher: jest.fn(),
+      removeTeacher: jest.fn(),
       getCourseWithTeachers: jest.fn(),
       getTeacherCourses: jest.fn(),
+      getCourseTeachers: jest.fn(),
+      getActiveCourse: jest.fn(),
     } as jest.Mocked<ICourseRepository>;
 
     mockAuthRepository = {
@@ -73,6 +75,18 @@ describe('UpdateCourseUseCase', () => {
       'Admin',
       'User',
       'admin',
+      new Date(),
+      new Date()
+    );
+
+    const mockCourse = new CourseEntity(
+      courseId,
+      'Test Course',
+      'Course Description',
+      new Date('2024-01-01'),
+      new Date('2024-12-31'),
+      true,
+      'admin-123',
       new Date(),
       new Date()
     );
@@ -175,6 +189,95 @@ describe('UpdateCourseUseCase', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Error al actualizar curso');
+    });
+
+    it('should return error when profile not found', async () => {
+      mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
+      mockAuthRepository.getCurrentUser.mockResolvedValue(mockUser);
+      mockProfileRepository.getProfileByUserId.mockResolvedValue(null);
+
+      const result = await updateCourseUseCase.execute(courseId, validInput);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Perfil no encontrado');
+    });
+
+    it('should return error when user is student', async () => {
+      const studentProfile = new ProfileEntity(
+        'user-123',
+        'student@example.com',
+        'Student User',
+        null,
+        'student',
+        new Date(),
+        new Date()
+      );
+
+      mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
+      mockAuthRepository.getCurrentUser.mockResolvedValue(mockUser);
+      mockProfileRepository.getProfileByUserId.mockResolvedValue(studentProfile);
+
+      const result = await updateCourseUseCase.execute(courseId, validInput);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('No tienes permisos para editar cursos');
+    });
+
+    it('should return error when teacher is not assigned to course', async () => {
+      const teacherProfile = new ProfileEntity(
+        'user-123',
+        'teacher@example.com',
+        'Teacher User',
+        null,
+        'teacher',
+        new Date(),
+        new Date()
+      );
+
+      mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
+      mockAuthRepository.getCurrentUser.mockResolvedValue(mockUser);
+      mockProfileRepository.getProfileByUserId.mockResolvedValue(teacherProfile);
+      mockCourseRepository.getCourseTeachers.mockResolvedValue(['other-teacher-id']);
+
+      const result = await updateCourseUseCase.execute(courseId, validInput);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('No estás asignado a este curso');
+    });
+
+    it('should update course successfully when teacher is assigned to course', async () => {
+      const teacherProfile = new ProfileEntity(
+        'user-123',
+        'teacher@example.com',
+        'Teacher User',
+        null,
+        'teacher',
+        new Date(),
+        new Date()
+      );
+
+      const mockUpdatedCourse = new CourseEntity(
+        courseId,
+        'Updated Course',
+        'Updated Description',
+        new Date('2025-01-01'),
+        new Date('2025-12-31'),
+        true,
+        'admin-123',
+        new Date(),
+        new Date()
+      );
+
+      mockCourseRepository.getCourseById.mockResolvedValue(mockCourse);
+      mockAuthRepository.getCurrentUser.mockResolvedValue(mockUser);
+      mockProfileRepository.getProfileByUserId.mockResolvedValue(teacherProfile);
+      mockCourseRepository.getCourseTeachers.mockResolvedValue(['user-123']);
+      mockCourseRepository.updateCourse.mockResolvedValue(mockUpdatedCourse);
+
+      const result = await updateCourseUseCase.execute(courseId, validInput);
+
+      expect(result.success).toBe(true);
+      expect(result.course).toEqual(mockUpdatedCourse);
     });
   });
 });
