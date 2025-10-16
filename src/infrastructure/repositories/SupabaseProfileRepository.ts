@@ -150,25 +150,4 @@ export class SupabaseProfileRepository implements IProfileRepository {
 
     return data.map((profile) => ProfileEntity.fromDatabase(profile));
   }
-
-  async deleteUser(userId: string): Promise<void> {
-    const supabase = createClient();
-
-    // Use the RPC function for safe deletion
-    const { error } = await supabase.rpc("delete_user_profile", {
-      user_id: userId,
-    });
-
-    if (error) {
-      throw new Error(`Error al eliminar usuario: ${error.message}`);
-    }
-
-    // Also delete the user from Supabase Auth
-    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-    
-    if (authError) {
-      console.warn("Error deleting user from auth:", authError.message);
-      // Don't fail the deletion if auth deletion fails
-    }
-  }
 }

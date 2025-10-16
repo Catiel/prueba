@@ -101,21 +101,11 @@ export async function deleteUser(userId: string) {
       }
     }
 
-    // Use the RPC function for safe deletion
-    const { error } = await supabase.rpc("delete_user_profile", {
-      user_id: userId,
-    });
+    // Delete user profile (auth.users will cascade delete via trigger)
+    const { error } = await supabase.from("profiles").delete().eq("id", userId);
 
     if (error) {
       return { error: error.message };
-    }
-
-    // Also delete the user from Supabase Auth
-    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-    
-    if (authError) {
-      console.warn("Error deleting user from auth:", authError.message);
-      // Don't fail the deletion if auth deletion fails
     }
 
     revalidatePath("/dashboard/admin/users");
