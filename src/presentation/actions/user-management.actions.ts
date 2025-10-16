@@ -110,6 +110,14 @@ export async function deleteUser(userId: string) {
       return { error: error.message };
     }
 
+    // Also delete the user from Supabase Auth
+    const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+    
+    if (authError) {
+      console.warn("Error deleting user from auth:", authError.message);
+      // Don't fail the deletion if auth deletion fails
+    }
+
     revalidatePath("/dashboard/admin/users");
     return { success: true };
   } catch (error) {
