@@ -64,11 +64,11 @@ export class DeleteUserUseCase {
         }
       }
 
-      // Delete user - This will be handled by Supabase Admin API
+      // Delete user
+      await this.profileRepository.deleteUser(userId);
+
       return {
         success: true,
-        error:
-          "Esta funcionalidad requiere configuración adicional en Supabase",
       };
     } catch (error) {
       return {
